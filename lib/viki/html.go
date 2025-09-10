@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gomarkdown/markdown"
@@ -127,12 +128,7 @@ func renderSidebar(fs afero.Fs, basePath string) (string, error) {
 		if !n.IsDir {
 			return true
 		}
-		for _, c := range n.Children {
-			if hasAnyChildren(c) {
-				return true
-			}
-		}
-		return false
+		return slices.ContainsFunc(n.Children, hasAnyChildren)
 	}
 
 	var pruneChildren func(n *node)
