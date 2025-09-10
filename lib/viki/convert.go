@@ -53,7 +53,6 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		}
 
 		if ignoreChecker.MatchesPath(inputFilePath) {
-			fmt.Println("ignoring", inputFilePath)
 			return nil
 		}
 
