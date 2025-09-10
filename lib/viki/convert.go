@@ -10,13 +10,17 @@ import (
 )
 
 type ConverterOptions struct {
+	IgnoreLines []string
 }
 
 type Converter struct {
+	config ConverterOptions
 }
 
 func NewConverter(options ConverterOptions) *Converter {
-	return &Converter{}
+	return &Converter{
+		config: options,
+	}
 }
 
 // Convert takes in a filesystem (which could be an OS filesystem or an in-memory one)
@@ -27,7 +31,13 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		return fmt.Errorf("failed to build wiki link map: %w", err)
 	}
 
-	sidebar, err := renderSidebar(input, inputRootPath)
+	ignoreChecker, err := c.generateIgnoreChecker(input, inputRootPath)
+
+	if err != nil {
+		return fmt.Errorf("failed to generate ignore checker: %w", err)
+	}
+
+	sidebar, err := renderSidebar(input, inputRootPath, ignoreChecker)
 
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
@@ -37,7 +47,13 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		if err != nil {
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
 		}
-		if info.IsDir() {
+
+		if info.IsDir() || ignoreChecker.MatchesPath(inputFilePath) {
+			return nil
+		}
+
+		if ignoreChecker.MatchesPath(inputFilePath) {
+			fmt.Println("ignoring", inputFilePath)
 			return nil
 		}
 

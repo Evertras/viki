@@ -2,6 +2,7 @@ package viki
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -55,6 +56,50 @@ func TestConverterDoesNothingToNonMdFiles(t *testing.T) {
 		assert.False(t, info.IsDir(), "Expected no files to be created")
 		return nil
 	})
+}
+
+func TestConverterRespectsGitIgnore(t *testing.T) {
+	converter := NewConverter(ConverterOptions{
+		IgnoreLines: []string{"/private"},
+	})
+	assert.NotNil(t, converter)
+
+	inputFs := afero.NewMemMapFs()
+	outputFs := afero.NewMemMapFs()
+
+	writeFile := func(path string, content string) {
+		err := afero.WriteFile(inputFs, path, []byte(content), 0644)
+		assert.NoError(t, err)
+	}
+
+	// Create a non-md file in the input filesystem
+	writeFile("/test.txt", "test")
+	writeFile("/node_modules/thing/README.md", "# Hello this is a thing from node_modules")
+	writeFile("/private/private-thing.md", "# Hello this is a private thing")
+	writeFile("/public/public.md", "# Hello this is a public thing")
+	writeFile("/.gitignore", "node_modules")
+
+	err := converter.Convert(inputFs, "/", outputFs, "/")
+	assert.NoError(t, err)
+
+	// Verify that no files were created in the output filesystem
+	err = afero.Walk(outputFs, "/", func(outputFilePath string, info os.FileInfo, err error) error {
+		assert.NoError(t, err)
+
+		if info.IsDir() {
+			return nil
+		}
+
+		if !strings.HasSuffix(outputFilePath, ".html") {
+			return nil
+		}
+
+		assert.Equal(t, "public.html", info.Name(), "Expected only public.md to be converted")
+
+		return nil
+	})
+
+	assert.NoError(t, err, "Walk should not error")
 }
 
 func TestConverterCreatesFilesWithSameNameButHtmlExtension(t *testing.T) {
