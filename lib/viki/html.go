@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
@@ -103,7 +104,7 @@ func renderSidebar(fs afero.Fs, basePath string) (string, error) {
 
 			parent := nodes[parentDir]
 			parent.Children = append(parent.Children, &node{
-				Name:  info.Name(),
+				Name:  strings.TrimSuffix(info.Name(), ".md"),
 				URL:   mdPathToHTMLPath(filePath),
 				IsDir: false,
 			})
