@@ -54,7 +54,8 @@ func convertWikilinks(content []byte, wikiLinkMap map[string]string) []byte {
 	// TODO: This is inefficient for large link maps, but start here
 	for wikiLink, target := range wikiLinkMap {
 		linkText := fmt.Sprintf("[[%s]]", wikiLink)
-		content = bytes.ReplaceAll(content, []byte(linkText), fmt.Appendf(nil, "[[%s](%s)]", wikiLink, target))
+		content = bytes.ReplaceAll(content, []byte(linkText),
+			fmt.Appendf(nil, `<span class="wikilink">[%s](%s)</span>`, wikiLink, target))
 	}
 
 	return content

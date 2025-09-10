@@ -40,7 +40,7 @@ func TestWikilinkConversion(t *testing.T) {
 		"Note Two": "Note%20Two.html",
 	}
 	originalContent := []byte("This is a link to [[Note One]] and another link to [[Note Two]]. [[This link]] doesn't exist")
-	expectedContent := []byte("This is a link to [Note One](Note%20One.html) and another link to [Note Two](Note%20Two.html). [[This link]] doesn't exist")
+	expectedContent := []byte(`This is a link to <span class="wikilink">[Note One](Note%20One.html)</span> and another link to <span class="wikilink">[Note Two](Note%20Two.html)</span>. [[This link]] doesn't exist`)
 	convertedContent := convertWikilinks(originalContent, wikiLinkMap)
 	assert.Equal(t, string(expectedContent), string(convertedContent))
 }

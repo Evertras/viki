@@ -42,6 +42,9 @@
             padding: 2rem;
             background: #fff;
         }
+        .wikilink {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
