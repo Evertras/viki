@@ -3,7 +3,7 @@ package viki
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -27,6 +27,12 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		return fmt.Errorf("failed to build wiki link map: %w", err)
 	}
 
+	sidebar, err := renderSidebar(input, inputRootPath)
+
+	if err != nil {
+		return fmt.Errorf("failed to render sidebar: %w", err)
+	}
+
 	return afero.Walk(input, inputRootPath, func(inputFilePath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
@@ -35,7 +41,7 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 			return nil
 		}
 
-		if path.Ext(inputFilePath) != ".md" {
+		if filepath.Ext(inputFilePath) != ".md" {
 			return nil
 		}
 
@@ -46,10 +52,11 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 
 		content = convertWikilinks(content, wikiLinks)
 		content = mdToHtml(content)
+		content = renderPage(string(content), sidebar)
 
 		outputFilePath := mdPathToHTMLPath(inputFilePath)
 		outputFilePath = strings.TrimPrefix(outputFilePath, inputRootPath)
-		outputFilePath = path.Join(outputRootPath, outputFilePath)
+		outputFilePath = filepath.Join(outputRootPath, outputFilePath)
 
 		err = afero.WriteFile(output, outputFilePath, content, 0644)
 		if err != nil {
@@ -61,5 +68,6 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 }
 
 func mdPathToHTMLPath(mdPath string) string {
+	mdPath = filepath.ToSlash(mdPath)
 	return strings.TrimSuffix(mdPath, ".md") + ".html"
 }
