@@ -12,6 +12,7 @@
 	--color-code-fg: {{ .CodeFgColor }};
 	--color-blockquote-bg: {{ .BlockquoteBgColor }};
 	--color-blockquote-border: {{ .BlockquoteBorderColor }};
+    --color-li-marker: {{ .ListBulletColor }};
 }
 
 body {
@@ -58,6 +59,10 @@ blockquote {
 
 ul, ol {
 	color: var(--color-fg);
+}
+
+li::marker {
+    color: var(--color-li-marker);
 }
 
 hr {

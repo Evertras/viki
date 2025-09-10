@@ -29,6 +29,7 @@ type ThemeData struct {
 	CodeFgColor           string
 	BlockquoteBgColor     string
 	BlockquoteBorderColor string
+	ListBulletColor       string
 }
 
 func init() {
@@ -45,6 +46,7 @@ func (c *Converter) generateThemeCss(data ThemeData) ([]byte, error) {
 
 func ThemeCatpuccin() ThemeData {
 	flavor := catppuccin.Frappe
+
 	return ThemeData{
 		BgColor:               flavor.Base().Hex,
 		FgColor:               flavor.Text().Hex,
@@ -58,5 +60,6 @@ func ThemeCatpuccin() ThemeData {
 		CodeFgColor:           flavor.Text().Hex,
 		BlockquoteBgColor:     flavor.Base().Hex,
 		BlockquoteBorderColor: flavor.Overlay1().Hex,
+		ListBulletColor:       flavor.Green().Hex,
 	}
 }
