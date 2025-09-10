@@ -20,7 +20,7 @@ var serveCmd = &cobra.Command{
 
 		log.Printf("Listening on http://%s", baseAddress)
 
-		inputFs := afero.NewOsFs()
+		inputFs := afero.NewReadOnlyFs(afero.NewOsFs())
 		outputFs := afero.NewMemMapFs()
 
 		converter := viki.NewConverter(viki.ConverterOptions{})
