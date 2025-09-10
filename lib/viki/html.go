@@ -122,7 +122,6 @@ func renderSidebar(fs afero.Fs, basePath string) (string, error) {
 	}
 
 	// Prune any empty directories
-	// TODO: Do this better so we don't leave empty parents
 	var hasAnyChildren func(n *node) bool
 	hasAnyChildren = func(n *node) bool {
 		if !n.IsDir {
