@@ -19,6 +19,24 @@
             padding: 1rem;
             box-sizing: border-box;
         }
+        .sidebar-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+        }
+        .sidebar-list li {
+            margin: 0;
+            padding: 0 0 0 0.5em;
+        }
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .collapsible-content {
+            margin-left: 1.2em;
+        }
         .body {
             flex: 1;
             padding: 2rem;

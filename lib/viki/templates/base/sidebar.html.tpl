@@ -1,10 +1,13 @@
-<ul>
+
+<ul class="sidebar-list">
 {{- range .Nodes }}
     <li>
         {{- if .IsDir }}
-            <span>{{ .Name }}</span>
+            <span class="collapsible" onclick="toggleCollapse(this)">&#9654; {{ .Name }}</span>
             {{- if .Children }}
-                {{ template "inner" .Children }}
+                <div class="collapsible-content" style="display:none;">
+                    {{ template "inner" .Children }}
+                </div>
             {{- end }}
         {{- else }}
             <a href="/{{ .URL }}">{{ .Name }}</a>
@@ -15,13 +18,15 @@
 
 {{/* Define the recursive template */}}
 {{ define "inner" }}
-<ul>
+<ul class="sidebar-list">
 {{- range . }}
     <li>
         {{- if .IsDir }}
-            <span>{{ .Name }}</span>
+            <span class="collapsible" onclick="toggleCollapse(this)">&#9654; {{ .Name }}</span>
             {{- if .Children }}
-                {{ template "inner" .Children }}
+                <div class="collapsible-content" style="display:none;">
+                    {{ template "inner" .Children }}
+                </div>
             {{- end }}
         {{- else }}
             <a href="/{{ .URL }}">{{ .Name }}</a>
@@ -30,3 +35,17 @@
 {{- end }}
 </ul>
 {{ end }}
+
+<script>
+function toggleCollapse(el) {
+    var content = el.parentElement.querySelector('.collapsible-content');
+    if (!content) return;
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        el.innerHTML = '&#9660; ' + el.textContent.slice(2);
+    } else {
+        content.style.display = 'none';
+        el.innerHTML = '&#9654; ' + el.textContent.slice(2);
+    }
+}
+</script>
