@@ -33,7 +33,7 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		return fmt.Errorf("failed to render sidebar: %w", err)
 	}
 
-	return afero.Walk(input, inputRootPath, func(inputFilePath string, info os.FileInfo, err error) error {
+	err = afero.Walk(input, inputRootPath, func(inputFilePath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
 		}
@@ -65,6 +65,24 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 
 		return nil
 	})
+
+	if err != nil {
+		return fmt.Errorf("failed to generate pages: %w", err)
+	}
+
+	cssContent, err := c.generateThemeCss(ThemeCatpuccin())
+
+	if err != nil {
+		return fmt.Errorf("failed to generate theme css: %w", err)
+	}
+
+	err = afero.WriteFile(output, filepath.Join(outputRootPath, "theme.css"), []byte(cssContent), 0644)
+
+	if err != nil {
+		return fmt.Errorf("failed to write theme css: %w", err)
+	}
+
+	return nil
 }
 
 func mdPathToHTMLPath(mdPath string) string {

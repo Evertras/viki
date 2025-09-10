@@ -7,7 +7,6 @@
     <style>
         body {
             margin: 0;
-            font-family: sans-serif;
         }
         .container {
             display: flex;
@@ -15,7 +14,6 @@
         }
         .sidebar {
             width: 400px;
-            background: #f4f4f4;
             padding: 1rem;
             box-sizing: border-box;
         }
@@ -40,12 +38,12 @@
         .body {
             flex: 1;
             padding: 2rem;
-            background: #fff;
         }
         .wikilink {
             font-weight: bold;
         }
     </style>
+    <link rel="stylesheet" href="/theme.css">
 </head>
 <body>
     <div class="container">
