@@ -52,14 +52,14 @@ func ThemeCatpuccin() ThemeData {
 		FgColor:               flavor.Text().Hex,
 		LinkColor:             flavor.Blue().Hex,
 		LinkHoverColor:        flavor.Lavender().Hex,
-		StrongColor:           flavor.Teal().Hex,
+		StrongColor:           flavor.Peach().Hex,
 		HeaderColor:           flavor.Green().Hex,
 		SidebarBgColor:        flavor.Mantle().Hex,
 		SidebarFgColor:        flavor.Text().Hex,
 		CodeBgColor:           flavor.Base().Hex,
 		CodeFgColor:           flavor.Text().Hex,
 		BlockquoteBgColor:     flavor.Base().Hex,
-		BlockquoteBorderColor: flavor.Overlay1().Hex,
+		BlockquoteBorderColor: flavor.Peach().Hex,
 		ListBulletColor:       flavor.Green().Hex,
 	}
 }
