@@ -30,7 +30,10 @@ func (c *Converter) buildWikiLinkMap(input afero.Fs, inputRootPath string) (map[
 		if os.PathSeparator == '\\' {
 			inputFilePath = strings.ReplaceAll(inputFilePath, "\\", "/")
 		}
+
 		relativePath := strings.TrimPrefix(inputFilePath, inputRootPath)
+		relativePath = strings.TrimSuffix(relativePath, ".md") + ".html"
+
 		// Make sure to start with a slash
 		if !strings.HasPrefix(relativePath, "/") {
 			relativePath = "/" + relativePath

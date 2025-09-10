@@ -22,7 +22,7 @@ func NewConverter(options ConverterOptions) *Converter {
 // Convert takes in a filesystem (which could be an OS filesystem or an in-memory one)
 // and an output afero.Fs, converts each .md file to .html, and then writes to the output afero.Fs.
 func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.Fs, outputRootPath string) error {
-	_, err := c.buildWikiLinkMap(input, inputRootPath)
+	wikiLinks, err := c.buildWikiLinkMap(input, inputRootPath)
 	if err != nil {
 		return fmt.Errorf("failed to build wiki link map: %w", err)
 	}
@@ -44,9 +44,8 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 			return fmt.Errorf("failed to read file %s: %w", inputFilePath, err)
 		}
 
+		content = convertWikilinks(content, wikiLinks)
 		content = mdToHtml(content)
-
-		// TODO: Convert wikilinks
 
 		outputFilePath := mdPathToHTMLPath(inputFilePath)
 		outputFilePath = strings.TrimPrefix(outputFilePath, inputRootPath)

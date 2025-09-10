@@ -21,8 +21,8 @@ func TestBuildWikiLinkMap(t *testing.T) {
 	}
 
 	expectedMap := map[string]string{
-		"note1": "/" + path.Join("note1.md"),
-		"note2": "/" + path.Join("subdir", "note2.md"),
+		"note1": "/" + path.Join("note1.html"),
+		"note2": "/" + path.Join("subdir", "note2.html"),
 	}
 
 	for _, filePath := range filePaths {
