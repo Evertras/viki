@@ -57,19 +57,22 @@ func renderSidebar(fs afero.Fs, basePath string) (string, error) {
 
 	nodes := make(map[string]*node)
 
-	nodes["."] = &node{
+	rootNode := &node{
 		Name:     "Root",
 		URL:      "/",
 		IsDir:    true,
 		Children: []*node{},
 	}
 
+	nodes["."] = rootNode
+
 	err := afero.Walk(fs, basePath, func(filePath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if filePath[0] == '.' {
+		// TODO: better ignores
+		if filePath == "." {
 			return nil
 		}
 
@@ -120,18 +123,41 @@ func renderSidebar(fs afero.Fs, basePath string) (string, error) {
 
 	// Prune any empty directories
 	// TODO: Do this better so we don't leave empty parents
-	for filePath, n := range nodes {
-		if n.IsDir && len(n.Children) == 0 {
-			delete(nodes, filePath)
+	var hasAnyChildren func(n *node) bool
+	hasAnyChildren = func(n *node) bool {
+		if !n.IsDir {
+			return true
+		}
+		for _, c := range n.Children {
+			if hasAnyChildren(c) {
+				return true
+			}
+		}
+		return false
+	}
+
+	var pruneChildren func(n *node)
+	pruneChildren = func(n *node) {
+		if !n.IsDir {
+			return
+		}
+		for i := len(n.Children) - 1; i >= 0; i-- {
+			if !hasAnyChildren(n.Children[i]) {
+				n.Children = append(n.Children[:i], n.Children[i+1:]...)
+			} else {
+				pruneChildren(n.Children[i])
+			}
 		}
 	}
 
-	if nodes["."] == nil {
+	pruneChildren(rootNode)
+
+	if len(rootNode.Children) == 0 {
 		return "No content", nil
 	}
 
 	err = sidebarTemplate.Execute(&out, map[string]any{
-		"Nodes": nodes["."].Children,
+		"Nodes": rootNode.Children,
 	})
 
 	if err != nil {
