@@ -52,7 +52,7 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 
 		content = convertWikilinks(content, wikiLinks)
 		content = mdToHtml(content)
-		content = renderPage(string(content), sidebar)
+		content = renderPage("Viki", string(content), sidebar)
 
 		outputFilePath := mdPathToHTMLPath(inputFilePath)
 		outputFilePath = strings.TrimPrefix(outputFilePath, inputRootPath)

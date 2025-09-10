@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{block "title" .}}Page Title{{end}}</title>
+    <title>{{ .Title }}</title>
     <style>
         body {
             margin: 0;

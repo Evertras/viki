@@ -162,9 +162,10 @@ func renderSidebar(fs afero.Fs, basePath string) (string, error) {
 	return out.String(), nil
 }
 
-func renderPage(body, sidebar string) []byte {
+func renderPage(title, body, sidebar string) []byte {
 	var out bytes.Buffer
 	pageTemplate.Execute(&out, map[string]any{
+		"Title":       title,
 		"BodyHtml":    template.HTML(body),
 		"SidebarHtml": template.HTML(sidebar),
 	})
