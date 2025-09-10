@@ -7,7 +7,7 @@
                 {{ template "inner" .Children }}
             {{- end }}
         {{- else }}
-            <a href="{{ .URL }}">{{ .Name }}</a>
+            <a href="/{{ .URL }}">{{ .Name }}</a>
         {{- end }}
     </li>
 {{- end }}
