@@ -14,7 +14,7 @@
             min-height: 100vh;
         }
         .sidebar {
-            width: 220px;
+            width: 400px;
             background: #f4f4f4;
             padding: 1rem;
             box-sizing: border-box;
