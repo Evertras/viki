@@ -7,3 +7,5 @@ Also it seemed fun.
 ## Random ideas for hard mode
 
 Find the latest git commit for the note and add a 'Last updated' note somewhere on the rendered page.
+
+Look at aferox package to use github as a backing store and serve/publish straight from github repos.
