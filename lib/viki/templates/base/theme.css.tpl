@@ -18,7 +18,8 @@
 body {
 	background: var(--color-bg);
 	color: var(--color-fg);
-    font-family: "Hasklug Nerd Font Mono", sans-serif;
+    font-family: "Patrick Hand", sans-serif;
+    font-size: 20px;
 }
 
 a {
@@ -30,6 +31,7 @@ a:hover {
 }
 
 header, h1, h2, h3, h4, h5, h6 {
+    font-family: "Caveat";
 	color: var(--color-header);
 }
 
