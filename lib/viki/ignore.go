@@ -12,8 +12,8 @@ import (
 func (c *Converter) generateIgnoreChecker(fs afero.Fs, basePath string) (*ignore.GitIgnore, error) {
 	var ignoreChecker *ignore.GitIgnore
 
-	ignoreLines := make([]string, len(c.config.IgnoreLines))
-	copy(ignoreLines, c.config.IgnoreLines)
+	ignoreLines := make([]string, len(c.config.ExcludePatterns))
+	copy(ignoreLines, c.config.ExcludePatterns)
 
 	exists, err := afero.Exists(fs, filepath.Join(basePath, ".gitignore"))
 	if err != nil {

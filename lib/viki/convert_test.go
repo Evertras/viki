@@ -60,7 +60,7 @@ func TestConverterDoesNothingToNonMdFiles(t *testing.T) {
 
 func TestConverterRespectsGitIgnore(t *testing.T) {
 	converter := NewConverter(ConverterOptions{
-		IgnoreLines: []string{"/private"},
+		ExcludePatterns: []string{"/private"},
 	})
 	assert.NotNil(t, converter)
 
@@ -100,6 +100,45 @@ func TestConverterRespectsGitIgnore(t *testing.T) {
 	})
 
 	assert.NoError(t, err, "Walk should not error")
+}
+
+func TestConverterIncludesOnlySpecifiedPatterns(t *testing.T) {
+	converter := NewConverter(ConverterOptions{
+		IncludePatterns: []string{"/included"},
+		ExcludePatterns: []string{"excluded"},
+	})
+	assert.NotNil(t, converter)
+	inputFs := afero.NewMemMapFs()
+	outputFs := afero.NewMemMapFs()
+	writeFile := func(path string, content string) {
+		err := afero.WriteFile(inputFs, path, []byte(content), 0644)
+		assert.NoError(t, err, "Failed to write file %s in test setup", path)
+	}
+
+	// Create a non-md file in the input filesystem
+	writeFile("/included/included-file.md", "# This file should be included")
+	writeFile("/excluded/excluded-file.md", "# This file should be excluded")
+	writeFile("/included/also-included.md", "# This file should also be included")
+	writeFile("/not-included/not-included.md", "# This file should not be included")
+	writeFile("/included/excluded/nope.md", "# This file should be excluded as well")
+
+	err := converter.Convert(inputFs, "/", outputFs, "/")
+	assert.NoError(t, err, "Conversion should not error")
+
+	seenFiles := []string{}
+	err = afero.Walk(outputFs, "/", func(outputFilePath string, info os.FileInfo, err error) error {
+		assert.NoError(t, err, "Walk function should not error")
+		if info.IsDir() {
+			return nil
+		}
+		if strings.HasSuffix(info.Name(), ".html") {
+			seenFiles = append(seenFiles, info.Name())
+		}
+		return nil
+	})
+
+	assert.NoError(t, err, "Walk should not error")
+	assert.ElementsMatch(t, []string{"included-file.html", "also-included.html"}, seenFiles, "Expected only included files to be created")
 }
 
 func TestConverterCreatesFilesWithSameNameButHtmlExtension(t *testing.T) {

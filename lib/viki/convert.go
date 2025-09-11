@@ -6,11 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	ignore "github.com/sabhiram/go-gitignore"
 	"github.com/spf13/afero"
 )
 
 type ConverterOptions struct {
-	IgnoreLines []string
+	ExcludePatterns []string
+	IncludePatterns []string
 }
 
 type Converter struct {
@@ -37,7 +39,13 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		return fmt.Errorf("failed to generate ignore checker: %w", err)
 	}
 
-	sidebar, err := renderSidebar(input, inputRootPath, ignoreChecker)
+	if len(c.config.IncludePatterns) == 0 {
+		c.config.IncludePatterns = []string{"**"}
+	}
+
+	includeChecker := ignore.CompileIgnoreLines(c.config.IncludePatterns...)
+
+	sidebar, err := renderSidebar(input, inputRootPath, ignoreChecker, includeChecker)
 
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
@@ -48,7 +56,9 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
 		}
 
-		if info.IsDir() || ignoreChecker.MatchesPath(inputFilePath) {
+		if info.IsDir() ||
+			ignoreChecker.MatchesPath(inputFilePath) ||
+			!includeChecker.MatchesPath(inputFilePath) {
 			return nil
 		}
 

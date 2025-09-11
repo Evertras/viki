@@ -18,12 +18,15 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		baseAddress := fmt.Sprintf("%s:%d", config.Serve.Host, config.Serve.Port)
 
+		log.Println(config.IncludePatterns)
 		log.Printf("Listening on http://%s", baseAddress)
 
 		inputFs := afero.NewReadOnlyFs(afero.NewOsFs())
 		outputFs := afero.NewMemMapFs()
 
-		converter := viki.NewConverter(viki.ConverterOptions{})
+		converter := viki.NewConverter(viki.ConverterOptions{
+			IncludePatterns: config.IncludePatterns,
+		})
 
 		err := converter.Convert(inputFs, ".", outputFs, "/")
 

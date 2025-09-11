@@ -18,6 +18,12 @@ var configFilePath string
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	rootFlags := RootCmd.PersistentFlags()
+
+	rootFlags.StringSliceP("include-patterns", "i", []string{""}, "Gitignore-style glob patterns for files to include in the conversion. If included, only files matching these patterns are included.")
+
+	viper.BindPFlags(rootFlags)
+
 	// Special case for config file flag
 	RootCmd.PersistentFlags().StringVar(&configFilePath, "config", "", "Path to config file (optional)")
 }

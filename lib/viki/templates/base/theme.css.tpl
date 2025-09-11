@@ -18,7 +18,7 @@
 body {
 	background: var(--color-bg);
 	color: var(--color-fg);
-    font-family: "Patrick Hand", sans-serif;
+    font-family: "Comfortaa", sans-serif;
     font-size: 20px;
 }
 

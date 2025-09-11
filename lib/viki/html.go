@@ -47,7 +47,7 @@ func mdToHtml(mdContent []byte) []byte {
 	return htmlContent
 }
 
-func renderSidebar(fs afero.Fs, basePath string, ignoreChecker *ignore.GitIgnore) (string, error) {
+func renderSidebar(fs afero.Fs, basePath string, ignoreChecker *ignore.GitIgnore, includeChecker *ignore.GitIgnore) (string, error) {
 	type node struct {
 		Name     string
 		URL      string
@@ -73,7 +73,9 @@ func renderSidebar(fs afero.Fs, basePath string, ignoreChecker *ignore.GitIgnore
 			return err
 		}
 
-		if filePath == "." || ignoreChecker.MatchesPath(filePath) {
+		if filePath == "." ||
+			ignoreChecker.MatchesPath(filePath) ||
+			!includeChecker.MatchesPath(filePath) {
 			return nil
 		}
 
