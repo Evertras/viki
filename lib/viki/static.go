@@ -2,7 +2,6 @@ package viki
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 
 	"github.com/spf13/afero"
@@ -11,7 +10,6 @@ import (
 func (c *Converter) addStaticAssets(fs afero.Fs) error {
 	for path, data := range staticAssetFileMap {
 		dir := filepath.Dir(path)
-		log.Println("Creating dir:", dir)
 		err := fs.MkdirAll(dir, 0755)
 		if err != nil {
 			return fmt.Errorf("failed to write dir %s for file %s: %w", dir, path, err)

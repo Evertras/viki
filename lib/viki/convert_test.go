@@ -1,6 +1,8 @@
 package viki
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
@@ -206,4 +208,31 @@ func TestConverterAddsStaticAssets(t *testing.T) {
 		assert.NoError(t, err, "Existence check should not error")
 		assert.True(t, exists, "Expected %s to exist in the output filesystem", fullPath)
 	}
+}
+
+func TestConverterWorksForHttpServe(t *testing.T) {
+	converter := NewConverter(ConverterOptions{})
+	assert.NotNil(t, converter)
+	inputFs := afero.NewMemMapFs()
+	outputFs := afero.NewMemMapFs()
+
+	// Create a .md file in the input filesystem
+	afero.WriteFile(inputFs, "about.md", []byte("# About Page"), 0644)
+
+	err := converter.Convert(inputFs, outputFs)
+	assert.NoError(t, err, "Conversion should not error")
+
+	// Verify that the corresponding .html file was created in the output filesystem
+	exists, err := afero.Exists(outputFs, "about.html")
+	assert.NoError(t, err, "Existence check should not error")
+	assert.True(t, exists, "Expected about.html to exist in the output filesystem")
+
+	httpFs := afero.NewHttpFs(outputFs)
+	handler := http.FileServer(httpFs.Dir(""))
+
+	req := httptest.NewRequest("GET", "http://example.com/about.html", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+	resp := w.Result()
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK for about.html")
 }

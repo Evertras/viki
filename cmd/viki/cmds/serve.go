@@ -19,7 +19,9 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		baseAddress := fmt.Sprintf("%s:%d", config.Serve.Host, config.Serve.Port)
 
-		log.Println(config.IncludePatterns)
+		if len(config.IncludePatterns) != 0 {
+			log.Println("Including:", config.IncludePatterns)
+		}
 		log.Printf("Listening on http://%s", baseAddress)
 
 		inputFs := afero.NewReadOnlyFs(afero.NewOsFs())
@@ -41,7 +43,7 @@ var serveCmd = &cobra.Command{
 		}
 
 		httpFs := afero.NewHttpFs(outputFs)
-		http.Handle("/", http.FileServer(httpFs.Dir("/")))
+		http.Handle("/", http.FileServer(httpFs.Dir("")))
 		err = http.ListenAndServe(fmt.Sprintf("%s:%d", config.Serve.Host, config.Serve.Port), nil)
 
 		if err != nil {

@@ -2,7 +2,6 @@ package viki
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	ignore "github.com/sabhiram/go-gitignore"
@@ -29,8 +28,6 @@ func (c *Converter) generateIgnoreChecker(fs afero.Fs) (*ignore.GitIgnore, error
 		}
 
 		ignoreLines = append(ignoreLines, strings.Split(string(content), "\n")...)
-	} else {
-		log.Println(".gitignore not found, proceeding without it")
 	}
 
 	// filter out all ignorelines that are empty or just whitespace
