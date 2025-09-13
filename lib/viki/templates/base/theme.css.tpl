@@ -13,6 +13,8 @@
 	--color-blockquote-bg: {{ .BlockquoteBgColor }};
 	--color-blockquote-border: {{ .BlockquoteBorderColor }};
     --color-li-marker: {{ .ListBulletColor }};
+	
+	--external-link-icon-size: 0.75em;
 }
 
 body {
@@ -23,11 +25,26 @@ body {
 }
 
 a {
+	position: relative;
 	color: var(--color-link);
 	text-decoration: none;
+	padding-right: var(--external-link-icon-size);
 }
 a:hover {
 	color: var(--color-link-hover);
+}
+a::after {
+	content: "";
+	position: absolute;
+	left: auto;
+	right: 0;
+	top: calc(-0.25 * var(--external-link-icon-size));
+	height: var(--external-link-icon-size);
+	width: var(--external-link-icon-size);
+	background-image: url('_viki_static/external-link.png');
+	background-repeat: no-repeat;
+	background-size: contain;
+	pointer-events: none;
 }
 
 header, h1, h2, h3, h4, h5, h6 {

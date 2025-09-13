@@ -175,3 +175,18 @@ func TestMDPathToHTMLPath(t *testing.T) {
 		})
 	}
 }
+
+func TestConverterAddsStaticAssets(t *testing.T) {
+	converter := NewConverter(ConverterOptions{})
+	assert.NotNil(t, converter)
+	outputFs := afero.NewMemMapFs()
+	err := converter.addStaticAssets(outputFs, "/site")
+	assert.NoError(t, err, "Adding static assets should not error")
+	// Verify that static assets were added
+	for path := range staticAssetFileMap {
+		fullPath := "/site/_viki_static/" + path
+		exists, err := afero.Exists(outputFs, fullPath)
+		assert.NoError(t, err, "Existence check should not error")
+		assert.True(t, exists, "Expected %s to exist in the output filesystem", fullPath)
+	}
+}

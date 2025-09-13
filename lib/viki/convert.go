@@ -107,6 +107,12 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		return fmt.Errorf("failed to write theme css: %w", err)
 	}
 
+	err = c.addStaticAssets(output, outputRootPath)
+
+	if err != nil {
+		return fmt.Errorf("failed to add static assets: %w", err)
+	}
+
 	return nil
 }
 
