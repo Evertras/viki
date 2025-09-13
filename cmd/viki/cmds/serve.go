@@ -25,7 +25,7 @@ var serveCmd = &cobra.Command{
 		log.Printf("Listening on http://%s", baseAddress)
 
 		inputFs := afero.NewReadOnlyFs(afero.NewOsFs())
-		outputFs := afero.NewMemMapFs()
+		outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
 		converter := viki.NewConverter(viki.ConverterOptions{
 			IncludePatterns: config.IncludePatterns,
@@ -39,7 +39,7 @@ var serveCmd = &cobra.Command{
 		err = converter.Convert(afero.NewBasePathFs(inputFs, currentWorkingDirectory), outputFs)
 
 		if err != nil {
-			log.Println("Error during conversion:", err)
+			log.Fatalln("Error during conversion:", err)
 		}
 
 		httpFs := afero.NewHttpFs(outputFs)

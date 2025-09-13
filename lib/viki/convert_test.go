@@ -15,8 +15,8 @@ func TestConverterDoesNothingFromEmptyFs(t *testing.T) {
 	converter := NewConverter(ConverterOptions{})
 	assert.NotNil(t, converter)
 
-	inputFs := afero.NewMemMapFs()
-	outputFs := afero.NewMemMapFs()
+	inputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
+	outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
 	err := converter.Convert(inputFs, outputFs)
 	assert.NoError(t, err)
@@ -42,8 +42,8 @@ func TestConverterDoesNothingToNonMdFiles(t *testing.T) {
 	converter := NewConverter(ConverterOptions{})
 	assert.NotNil(t, converter)
 
-	inputFs := afero.NewMemMapFs()
-	outputFs := afero.NewMemMapFs()
+	inputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
+	outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
 	// Create a non-md file in the input filesystem
 	afero.WriteFile(inputFs, "test.txt", []byte("test"), 0644)
@@ -74,8 +74,8 @@ func TestConverterRespectsGitIgnore(t *testing.T) {
 	})
 	assert.NotNil(t, converter)
 
-	inputFs := afero.NewMemMapFs()
-	outputFs := afero.NewMemMapFs()
+	inputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
+	outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
 	writeFile := func(path string, content string) {
 		err := afero.WriteFile(inputFs, path, []byte(content), 0644)
@@ -122,8 +122,8 @@ func TestConverterIncludesOnlySpecifiedPatterns(t *testing.T) {
 		ExcludePatterns: []string{"excluded"},
 	})
 	assert.NotNil(t, converter)
-	inputFs := afero.NewMemMapFs()
-	outputFs := afero.NewMemMapFs()
+	inputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
+	outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 	writeFile := func(path string, content string) {
 		err := afero.WriteFile(inputFs, path, []byte(content), 0644)
 		assert.NoError(t, err, "Failed to write file %s in test setup", path)
@@ -163,8 +163,8 @@ func TestConverterIncludesOnlySpecifiedPatterns(t *testing.T) {
 func TestConverterCreatesFilesWithSameNameButHtmlExtension(t *testing.T) {
 	converter := NewConverter(ConverterOptions{})
 	assert.NotNil(t, converter)
-	inputFs := afero.NewMemMapFs()
-	outputFs := afero.NewMemMapFs()
+	inputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
+	outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
 	// Create a .md file in the input filesystem
 	afero.WriteFile(inputFs, "Test.md", []byte("# Test"), 0644)
@@ -213,8 +213,8 @@ func TestConverterAddsStaticAssets(t *testing.T) {
 func TestConverterWorksForHttpServe(t *testing.T) {
 	converter := NewConverter(ConverterOptions{})
 	assert.NotNil(t, converter)
-	inputFs := afero.NewMemMapFs()
-	outputFs := afero.NewMemMapFs()
+	inputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
+	outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
 	// Create a .md file in the input filesystem
 	afero.WriteFile(inputFs, "about.md", []byte("# About Page"), 0644)

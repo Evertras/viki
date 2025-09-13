@@ -29,6 +29,19 @@ func NewConverter(options ConverterOptions) *Converter {
 // the output filesystem. It always reads and writes from the root, so always use
 // afero.NewBasePathFs to scope it to a subdirectory.
 func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
+	// Enforce basepathfs being used
+	_, ok := input.(*afero.BasePathFs)
+	if !ok {
+		return fmt.Errorf("input filesystem must be a BasePathFs for safety")
+	}
+	_, ok = output.(*afero.BasePathFs)
+	if !ok {
+		return fmt.Errorf("output filesystem must be a BasePathFs for safety")
+	}
+
+	// Be extra safe and make input read-only
+	input = afero.NewReadOnlyFs(input)
+
 	wikiLinks, err := c.buildWikiLinkMap(input)
 	if err != nil {
 		return fmt.Errorf("failed to build wiki link map: %w", err)
