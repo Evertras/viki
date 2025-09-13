@@ -47,7 +47,7 @@ func mdToHtml(mdContent []byte) []byte {
 	return htmlContent
 }
 
-func renderSidebar(fs afero.Fs, basePath string, ignoreChecker *ignore.GitIgnore, includeChecker *ignore.GitIgnore) (string, error) {
+func renderSidebar(fs afero.Fs, ignoreChecker *ignore.GitIgnore, includeChecker *ignore.GitIgnore) (string, error) {
 	type node struct {
 		Name     string
 		URL      string
@@ -68,7 +68,7 @@ func renderSidebar(fs afero.Fs, basePath string, ignoreChecker *ignore.GitIgnore
 
 	nodes["."] = rootNode
 
-	err := afero.Walk(fs, basePath, func(filePath string, info os.FileInfo, err error) error {
+	err := afero.Walk(fs, "", func(filePath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

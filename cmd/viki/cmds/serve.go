@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/evertras/viki/lib/viki"
 	"github.com/spf13/afero"
@@ -28,7 +29,12 @@ var serveCmd = &cobra.Command{
 			IncludePatterns: config.IncludePatterns,
 		})
 
-		err := converter.Convert(inputFs, ".", outputFs, "/")
+		currentWorkingDirectory, err := os.Getwd()
+		if err != nil {
+			log.Fatalf("Failed to get current working directory: %v", err)
+		}
+
+		err = converter.Convert(afero.NewBasePathFs(inputFs, currentWorkingDirectory), outputFs)
 
 		if err != nil {
 			log.Println("Error during conversion:", err)

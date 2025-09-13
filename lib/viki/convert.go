@@ -25,15 +25,16 @@ func NewConverter(options ConverterOptions) *Converter {
 	}
 }
 
-// Convert takes in a filesystem (which could be an OS filesystem or an in-memory one)
-// and an output afero.Fs, converts each .md file to .html, and then writes to the output afero.Fs.
-func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.Fs, outputRootPath string) error {
-	wikiLinks, err := c.buildWikiLinkMap(input, inputRootPath)
+// Convert takes in a filesystem converts each .md file to .html, and then writes to
+// the output filesystem. It always reads and writes from the root, so always use
+// afero.NewBasePathFs to scope it to a subdirectory.
+func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
+	wikiLinks, err := c.buildWikiLinkMap(input)
 	if err != nil {
 		return fmt.Errorf("failed to build wiki link map: %w", err)
 	}
 
-	ignoreChecker, err := c.generateIgnoreChecker(input, inputRootPath)
+	ignoreChecker, err := c.generateIgnoreChecker(input)
 
 	if err != nil {
 		return fmt.Errorf("failed to generate ignore checker: %w", err)
@@ -45,13 +46,13 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 
 	includeChecker := ignore.CompileIgnoreLines(c.config.IncludePatterns...)
 
-	sidebar, err := renderSidebar(input, inputRootPath, ignoreChecker, includeChecker)
+	sidebar, err := renderSidebar(input, ignoreChecker, includeChecker)
 
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
 	}
 
-	err = afero.Walk(input, inputRootPath, func(inputFilePath string, info os.FileInfo, err error) error {
+	err = afero.Walk(input, "", func(inputFilePath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
 		}
@@ -80,8 +81,6 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		content = renderPage("Viki", string(content), sidebar)
 
 		outputFilePath := mdPathToHTMLPath(inputFilePath)
-		outputFilePath = strings.TrimPrefix(outputFilePath, inputRootPath)
-		outputFilePath = filepath.Join(outputRootPath, outputFilePath)
 
 		err = afero.WriteFile(output, outputFilePath, content, 0644)
 		if err != nil {
@@ -101,13 +100,13 @@ func (c *Converter) Convert(input afero.Fs, inputRootPath string, output afero.F
 		return fmt.Errorf("failed to generate theme css: %w", err)
 	}
 
-	err = afero.WriteFile(output, filepath.Join(outputRootPath, "theme.css"), []byte(cssContent), 0644)
+	err = afero.WriteFile(output, "theme.css", []byte(cssContent), 0644)
 
 	if err != nil {
 		return fmt.Errorf("failed to write theme css: %w", err)
 	}
 
-	err = c.addStaticAssets(output, outputRootPath)
+	err = c.addStaticAssets(output)
 
 	if err != nil {
 		return fmt.Errorf("failed to add static assets: %w", err)

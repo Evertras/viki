@@ -16,12 +16,16 @@ func TestConverterDoesNothingFromEmptyFs(t *testing.T) {
 	inputFs := afero.NewMemMapFs()
 	outputFs := afero.NewMemMapFs()
 
-	err := converter.Convert(inputFs, "/", outputFs, "/")
+	err := converter.Convert(inputFs, outputFs)
 	assert.NoError(t, err)
 
 	// Verify that no files were created in the output filesystem
-	afero.Walk(outputFs, "/", func(outputFilePath string, info os.FileInfo, err error) error {
-		assert.NoError(t, err)
+	afero.Walk(outputFs, "", func(outputFilePath string, info os.FileInfo, err error) error {
+		assert.NoError(t, err, "verification walk function should not error")
+
+		if err != nil {
+			return err
+		}
 
 		if info.IsDir() {
 			return nil
@@ -40,14 +44,18 @@ func TestConverterDoesNothingToNonMdFiles(t *testing.T) {
 	outputFs := afero.NewMemMapFs()
 
 	// Create a non-md file in the input filesystem
-	afero.WriteFile(inputFs, "/test.txt", []byte("test"), 0644)
+	afero.WriteFile(inputFs, "test.txt", []byte("test"), 0644)
 
-	err := converter.Convert(inputFs, "/", outputFs, "/")
+	err := converter.Convert(inputFs, outputFs)
 	assert.NoError(t, err)
 
 	// Verify that no files were created in the output filesystem
-	afero.Walk(outputFs, "/", func(outputFilePath string, info os.FileInfo, err error) error {
+	afero.Walk(outputFs, "", func(outputFilePath string, info os.FileInfo, err error) error {
 		assert.NoError(t, err)
+
+		if err != nil {
+			return err
+		}
 
 		if info.IsDir() {
 			return nil
@@ -73,18 +81,22 @@ func TestConverterRespectsGitIgnore(t *testing.T) {
 	}
 
 	// Create a non-md file in the input filesystem
-	writeFile("/test.txt", "test")
-	writeFile("/node_modules/thing/README.md", "# Hello this is a thing from node_modules")
-	writeFile("/private/private-thing.md", "# Hello this is a private thing")
-	writeFile("/public/public.md", "# Hello this is a public thing")
-	writeFile("/.gitignore", "node_modules")
+	writeFile("test.txt", "test")
+	writeFile("node_modules/thing/README.md", "# Hello this is a thing from node_modules")
+	writeFile("private/private-thing.md", "# Hello this is a private thing")
+	writeFile("public/public.md", "# Hello this is a public thing")
+	writeFile(".gitignore", "node_modules")
 
-	err := converter.Convert(inputFs, "/", outputFs, "/")
+	err := converter.Convert(inputFs, outputFs)
 	assert.NoError(t, err)
 
 	// Verify that no files were created in the output filesystem
-	err = afero.Walk(outputFs, "/", func(outputFilePath string, info os.FileInfo, err error) error {
+	err = afero.Walk(outputFs, "", func(outputFilePath string, info os.FileInfo, err error) error {
 		assert.NoError(t, err)
+
+		if err != nil {
+			return err
+		}
 
 		if info.IsDir() {
 			return nil
@@ -116,18 +128,23 @@ func TestConverterIncludesOnlySpecifiedPatterns(t *testing.T) {
 	}
 
 	// Create a non-md file in the input filesystem
-	writeFile("/included/included-file.md", "# This file should be included")
-	writeFile("/excluded/excluded-file.md", "# This file should be excluded")
-	writeFile("/included/also-included.md", "# This file should also be included")
-	writeFile("/not-included/not-included.md", "# This file should not be included")
-	writeFile("/included/excluded/nope.md", "# This file should be excluded as well")
+	writeFile("included/included-file.md", "# This file should be included")
+	writeFile("excluded/excluded-file.md", "# This file should be excluded")
+	writeFile("included/also-included.md", "# This file should also be included")
+	writeFile("not-included/not-included.md", "# This file should not be included")
+	writeFile("included/excluded/nope.md", "# This file should be excluded as well")
 
-	err := converter.Convert(inputFs, "/", outputFs, "/")
+	err := converter.Convert(inputFs, outputFs)
 	assert.NoError(t, err, "Conversion should not error")
 
 	seenFiles := []string{}
-	err = afero.Walk(outputFs, "/", func(outputFilePath string, info os.FileInfo, err error) error {
+	err = afero.Walk(outputFs, "", func(outputFilePath string, info os.FileInfo, err error) error {
 		assert.NoError(t, err, "Walk function should not error")
+
+		if err != nil {
+			return err
+		}
+
 		if info.IsDir() {
 			return nil
 		}
@@ -148,8 +165,8 @@ func TestConverterCreatesFilesWithSameNameButHtmlExtension(t *testing.T) {
 	outputFs := afero.NewMemMapFs()
 
 	// Create a .md file in the input filesystem
-	afero.WriteFile(inputFs, "/Test.md", []byte("# Test"), 0644)
-	err := converter.Convert(inputFs, "/", outputFs, "/site")
+	afero.WriteFile(inputFs, "Test.md", []byte("# Test"), 0644)
+	err := converter.Convert(inputFs, afero.NewBasePathFs(outputFs, "/site"))
 	assert.NoError(t, err, "Conversion should not error")
 
 	// Verify that the corresponding .html file was created in the output filesystem
@@ -180,11 +197,11 @@ func TestConverterAddsStaticAssets(t *testing.T) {
 	converter := NewConverter(ConverterOptions{})
 	assert.NotNil(t, converter)
 	outputFs := afero.NewMemMapFs()
-	err := converter.addStaticAssets(outputFs, "/site")
+	err := converter.addStaticAssets(afero.NewBasePathFs(outputFs, "/site"))
 	assert.NoError(t, err, "Adding static assets should not error")
 	// Verify that static assets were added
 	for path := range staticAssetFileMap {
-		fullPath := "/site/_viki_static/" + path
+		fullPath := "/site/" + path
 		exists, err := afero.Exists(outputFs, fullPath)
 		assert.NoError(t, err, "Existence check should not error")
 		assert.True(t, exists, "Expected %s to exist in the output filesystem", fullPath)

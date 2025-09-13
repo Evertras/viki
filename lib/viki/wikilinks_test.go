@@ -29,7 +29,7 @@ func TestBuildWikiLinkMap(t *testing.T) {
 		afero.WriteFile(inputFs, filePath, []byte("test content"), 0644)
 	}
 
-	wikiLinkMap, err := converter.buildWikiLinkMap(inputFs, "/wiki")
+	wikiLinkMap, err := converter.buildWikiLinkMap(afero.NewBasePathFs(inputFs, "/wiki"))
 	assert.NoError(t, err)
 	assert.Equal(t, expectedMap, wikiLinkMap)
 }

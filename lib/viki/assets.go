@@ -19,8 +19,8 @@ var (
 )
 
 var staticAssetFileMap = map[string][]byte{
-	"external-link.png":         static_external_link_png,
-	"favicon/favicon-16x16.png": static_favicon_favicon_16x16_png,
-	"favicon/favicon-32x32.png": static_favicon_favicon_32x32_png,
-	"favicon/favicon.ico":       static_favicon_favicon_ico,
+	"_viki_static/external-link.png":         static_external_link_png,
+	"_viki_static/favicon/favicon-16x16.png": static_favicon_favicon_16x16_png,
+	"_viki_static/favicon/favicon-32x32.png": static_favicon_favicon_32x32_png,
+	"_viki_static/favicon/favicon.ico":       static_favicon_favicon_ico,
 }

@@ -33,7 +33,7 @@ echo '' >> assets.go
 echo 'var staticAssetFileMap = map[string][]byte{' >> assets.go
 for file in $files; do
     var_name=$(filenameToVar "${file}")
-    echo "	\"${file#./static/}\": static_${var_name}," >> assets.go
+    echo "	\"_viki_static/${file#./static/}\": static_${var_name}," >> assets.go
 done
 echo '}' >> assets.go
 

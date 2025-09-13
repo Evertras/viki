@@ -10,11 +10,10 @@ import (
 	"github.com/spf13/afero"
 )
 
-func (c *Converter) buildWikiLinkMap(input afero.Fs, inputRootPath string) (map[string]string, error) {
+func (c *Converter) buildWikiLinkMap(input afero.Fs) (map[string]string, error) {
 	wikiLinkMap := make(map[string]string)
-	inputRootPath = path.Clean(inputRootPath)
 
-	err := afero.Walk(input, inputRootPath, func(inputFilePath string, info os.FileInfo, err error) error {
+	err := afero.Walk(input, "", func(inputFilePath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
 		}
@@ -32,7 +31,7 @@ func (c *Converter) buildWikiLinkMap(input afero.Fs, inputRootPath string) (map[
 			inputFilePath = strings.ReplaceAll(inputFilePath, "\\", "/")
 		}
 
-		relativePath := strings.TrimPrefix(inputFilePath, inputRootPath)
+		relativePath := strings.TrimPrefix(inputFilePath, "/")
 		relativePath = strings.TrimSuffix(relativePath, ".md") + ".html"
 
 		// Make sure to start with a slash
