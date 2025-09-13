@@ -27,9 +27,7 @@ var serveCmd = &cobra.Command{
 		inputFs := afero.NewReadOnlyFs(afero.NewOsFs())
 		outputFs := afero.NewBasePathFs(afero.NewMemMapFs(), "/")
 
-		converter := viki.NewConverter(viki.ConverterOptions{
-			IncludePatterns: config.IncludePatterns,
-		})
+		converter := viki.NewConverter(generateVikiConfig())
 
 		currentWorkingDirectory, err := os.Getwd()
 		if err != nil {

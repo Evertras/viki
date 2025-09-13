@@ -95,6 +95,11 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 
 		outputFilePath := mdPathToHTMLPath(inputFilePath)
 
+		err = output.MkdirAll(filepath.Dir(outputFilePath), 0755)
+		if err != nil {
+			return fmt.Errorf("failed to create directory for %s: %w", outputFilePath, err)
+		}
+
 		err = afero.WriteFile(output, outputFilePath, content, 0644)
 		if err != nil {
 			return fmt.Errorf("failed to write file %s: %w", outputFilePath, err)

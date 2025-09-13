@@ -1,5 +1,7 @@
 package cmds
 
+import "github.com/evertras/viki/lib/viki"
+
 type Config struct {
 	Serve struct {
 		Host string `mapstructure:"host"`
@@ -10,3 +12,9 @@ type Config struct {
 }
 
 var config Config
+
+func generateVikiConfig() viki.ConverterOptions {
+	return viki.ConverterOptions{
+		IncludePatterns: config.IncludePatterns,
+	}
+}
