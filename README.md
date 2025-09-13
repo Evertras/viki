@@ -13,6 +13,10 @@ Also it seemed fun.
 - TOC page
     - Tag badges
 
+### Page improvements
+
+- Extract page title from main header if present
+
 ### Sidebar improvements
 
 - Sort the sidebar so dirs/content aren't intermingled
