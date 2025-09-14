@@ -44,7 +44,7 @@ func (c *Converter) generateThemeCss(data ThemeData) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func ThemeCatpuccin() ThemeData {
+func ThemeCatppuccin() ThemeData {
 	flavor := catppuccin.Frappe
 
 	return ThemeData{

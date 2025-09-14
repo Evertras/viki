@@ -112,7 +112,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		return fmt.Errorf("failed to generate pages: %w", err)
 	}
 
-	cssContent, err := c.generateThemeCss(ThemeCatpuccin())
+	cssContent, err := c.generateThemeCss(ThemeCatppuccin())
 
 	if err != nil {
 		return fmt.Errorf("failed to generate theme css: %w", err)
