@@ -1,0 +1,22 @@
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - goos:
+      - linux
+      - windows
+      - darwin
+    main: ./cmd/viki
+    binary: viki
+    ldflags:
+      - -X github.com/evertras/viki/cmd/viki/cmds.BuildVersion=v{{ .Version }}
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

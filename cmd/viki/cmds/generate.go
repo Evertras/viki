@@ -16,7 +16,7 @@ var generateCmd = &cobra.Command{
 		src := args[0]
 		dst := args[1]
 
-		log.Printf("Generating website from %s to %s...", src, dst)
+		log.Printf("Generating website from %s to %s", src, dst)
 
 		inputFs := afero.NewBasePathFs(afero.NewOsFs(), src)
 		outputFs := afero.NewBasePathFs(afero.NewOsFs(), dst)
@@ -28,6 +28,8 @@ var generateCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalln("Error during conversion:", err)
 		}
+
+		log.Println("Generation complete")
 	},
 }
 
