@@ -2,7 +2,6 @@ package viki
 
 import (
 	"fmt"
-	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
@@ -70,11 +69,11 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		}
 
 		content = convertWikilinks(content, wikiLinks)
-		content = mdToHtml(content)
-		content, err = renderPage(renderPageInput{
+		htmlContent := mdToHtml(content)
+		outputFile, err := renderPage(renderPageInput{
 			Title:       strings.TrimSuffix(info.Name(), ".md"),
-			BodyHtml:    template.HTML(content),
-			SidebarHtml: template.HTML(sidebar),
+			BodyHtml:    htmlContent,
+			SidebarHtml: sidebar,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to render page for %s: %w", inputFilePath, err)
@@ -87,7 +86,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 			return fmt.Errorf("failed to create directory for %s: %w", outputFilePath, err)
 		}
 
-		err = afero.WriteFile(output, outputFilePath, content, 0644)
+		err = afero.WriteFile(output, outputFilePath, outputFile, 0644)
 		if err != nil {
 			return fmt.Errorf("failed to write file %s: %w", outputFilePath, err)
 		}

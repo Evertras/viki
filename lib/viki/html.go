@@ -32,7 +32,7 @@ func init() {
 	pageTemplate = template.Must(template.New("base").Parse(string(pageTemplateRaw)))
 }
 
-func mdToHtml(mdContent []byte) []byte {
+func mdToHtml(mdContent []byte) template.HTML {
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.Footnotes
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse(mdContent)
@@ -43,10 +43,10 @@ func mdToHtml(mdContent []byte) []byte {
 
 	htmlContent := markdown.Render(doc, renderer)
 
-	return htmlContent
+	return template.HTML(htmlContent)
 }
 
-func renderSidebar(fs afero.Fs, pathFilter pathFilter) (string, error) {
+func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 	type node struct {
 		Name     string
 		URL      string
@@ -150,7 +150,7 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (string, error) {
 		return "", fmt.Errorf("failed to render sidebar template: %w", err)
 	}
 
-	return out.String(), nil
+	return template.HTML(out.String()), nil
 }
 
 type renderPageInput struct {
