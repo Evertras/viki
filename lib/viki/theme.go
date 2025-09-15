@@ -2,18 +2,8 @@ package viki
 
 import (
 	"bytes"
-	_ "embed"
-
-	"html/template"
 
 	catppuccin "github.com/catppuccin/go"
-)
-
-var (
-	//go:embed templates/base/theme.css.tpl
-	themeCssTemplateRaw []byte
-
-	themeCssTemplate *template.Template
 )
 
 type ThemeData struct {
@@ -32,13 +22,9 @@ type ThemeData struct {
 	ListBulletColor       string
 }
 
-func init() {
-	themeCssTemplate = template.Must(template.New("theme").Parse(string(themeCssTemplateRaw)))
-}
-
 func generateThemeCss(data ThemeData) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := themeCssTemplate.Execute(&buf, data); err != nil {
+	if err := template_base_theme_css_tpl.Execute(&buf, data); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
