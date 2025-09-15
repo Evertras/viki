@@ -46,7 +46,7 @@ func mdToHtml(mdContent []byte) []byte {
 	return htmlContent
 }
 
-func renderSidebar(fs afero.Fs, pathFilter *pathFilter) (string, error) {
+func renderSidebar(fs afero.Fs, pathFilter pathFilter) (string, error) {
 	type node struct {
 		Name     string
 		URL      string
@@ -67,16 +67,7 @@ func renderSidebar(fs afero.Fs, pathFilter *pathFilter) (string, error) {
 
 	nodes["."] = rootNode
 
-	err := afero.Walk(fs, "", func(filePath string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if filePath == "." ||
-			!pathFilter.isPathIncluded(filePath, true) {
-			return nil
-		}
-
+	err := walkDir(fs, pathFilter, func(filePath string, info os.FileInfo) error {
 		if info.IsDir() {
 			nodes[filePath] = &node{
 				Name:     info.Name(),

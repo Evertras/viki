@@ -59,23 +59,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		return fmt.Errorf("failed to render sidebar: %w", err)
 	}
 
-	err = afero.Walk(input, "", func(inputFilePath string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
-		}
-
-		if info.IsDir() {
-			if !pathFilter.isPathIncluded(inputFilePath, true) {
-				return filepath.SkipDir
-			}
-
-			return nil
-		}
-
-		if !pathFilter.isPathIncluded(inputFilePath, false) {
-			return nil
-		}
-
+	err = walkDir(input, pathFilter, func(inputFilePath string, info os.FileInfo) error {
 		if filepath.Ext(inputFilePath) != ".md" {
 			return nil
 		}
