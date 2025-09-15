@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-func (c *Converter) addStaticAssets(fs afero.Fs) error {
+func addStaticAssets(fs afero.Fs) error {
 	for path, data := range staticAssetFileMap {
 		dir := filepath.Dir(path)
 		err := fs.MkdirAll(dir, 0755)

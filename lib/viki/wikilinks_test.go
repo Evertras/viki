@@ -9,8 +9,6 @@ import (
 )
 
 func TestBuildWikiLinkMap(t *testing.T) {
-	converter := NewConverter(ConverterOptions{})
-	assert.NotNil(t, converter)
 	inputFs := afero.NewMemMapFs()
 
 	filePaths := []string{
@@ -29,7 +27,7 @@ func TestBuildWikiLinkMap(t *testing.T) {
 		afero.WriteFile(inputFs, filePath, []byte("test content"), 0644)
 	}
 
-	wikiLinkMap, err := converter.buildWikiLinkMap(afero.NewBasePathFs(inputFs, "/wiki"))
+	wikiLinkMap, err := buildWikiLinkMap(afero.NewBasePathFs(inputFs, "/wiki"))
 	assert.NoError(t, err)
 	assert.Equal(t, expectedMap, wikiLinkMap)
 }

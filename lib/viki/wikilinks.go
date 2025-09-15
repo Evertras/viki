@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-func (c *Converter) buildWikiLinkMap(input afero.Fs) (map[string]string, error) {
+func buildWikiLinkMap(input afero.Fs) (map[string]string, error) {
 	wikiLinkMap := make(map[string]string)
 
 	err := afero.Walk(input, "", func(inputFilePath string, info os.FileInfo, err error) error {

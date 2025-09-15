@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	ignore "github.com/sabhiram/go-gitignore"
 	"github.com/spf13/afero"
 )
 
@@ -42,24 +41,18 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 	// Be extra safe and make input read-only
 	input = afero.NewReadOnlyFs(input)
 
-	wikiLinks, err := c.buildWikiLinkMap(input)
+	wikiLinks, err := buildWikiLinkMap(input)
 	if err != nil {
 		return fmt.Errorf("failed to build wiki link map: %w", err)
 	}
 
-	ignoreChecker, err := c.generateIgnoreChecker(input)
+	pathFilter, err := generatePathFilter(c.config, input)
 
 	if err != nil {
-		return fmt.Errorf("failed to generate ignore checker: %w", err)
+		return fmt.Errorf("failed to generate path filter: %w", err)
 	}
 
-	if len(c.config.IncludePatterns) == 0 {
-		c.config.IncludePatterns = []string{"**"}
-	}
-
-	includeChecker := ignore.CompileIgnoreLines(c.config.IncludePatterns...)
-
-	sidebar, err := renderSidebar(input, ignoreChecker, includeChecker)
+	sidebar, err := renderSidebar(input, pathFilter)
 
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
@@ -70,13 +63,15 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 			return fmt.Errorf("failed to access path %s: %w", inputFilePath, err)
 		}
 
-		if info.IsDir() ||
-			ignoreChecker.MatchesPath(inputFilePath) ||
-			!includeChecker.MatchesPath(inputFilePath) {
+		if info.IsDir() {
+			if !pathFilter.isPathIncluded(inputFilePath, true) {
+				return filepath.SkipDir
+			}
+
 			return nil
 		}
 
-		if ignoreChecker.MatchesPath(inputFilePath) {
+		if !pathFilter.isPathIncluded(inputFilePath, false) {
 			return nil
 		}
 
@@ -112,7 +107,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		return fmt.Errorf("failed to generate pages: %w", err)
 	}
 
-	cssContent, err := c.generateThemeCss(ThemeCatppuccin())
+	cssContent, err := generateThemeCss(ThemeCatppuccin())
 
 	if err != nil {
 		return fmt.Errorf("failed to generate theme css: %w", err)
@@ -124,7 +119,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		return fmt.Errorf("failed to write theme css: %w", err)
 	}
 
-	err = c.addStaticAssets(output)
+	err = addStaticAssets(output)
 
 	if err != nil {
 		return fmt.Errorf("failed to add static assets: %w", err)

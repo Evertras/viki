@@ -36,7 +36,7 @@ func init() {
 	themeCssTemplate = template.Must(template.New("theme").Parse(string(themeCssTemplateRaw)))
 }
 
-func (c *Converter) generateThemeCss(data ThemeData) ([]byte, error) {
+func generateThemeCss(data ThemeData) ([]byte, error) {
 	var buf bytes.Buffer
 	if err := themeCssTemplate.Execute(&buf, data); err != nil {
 		return nil, err

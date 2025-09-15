@@ -195,11 +195,9 @@ func TestMDPathToHTMLPath(t *testing.T) {
 	}
 }
 
-func TestConverterAddsStaticAssets(t *testing.T) {
-	converter := NewConverter(ConverterOptions{})
-	assert.NotNil(t, converter)
+func TestAddStaticAssets(t *testing.T) {
 	outputFs := afero.NewMemMapFs()
-	err := converter.addStaticAssets(afero.NewBasePathFs(outputFs, "/site"))
+	err := addStaticAssets(afero.NewBasePathFs(outputFs, "/site"))
 	assert.NoError(t, err, "Adding static assets should not error")
 	// Verify that static assets were added
 	for path := range staticAssetFileMap {

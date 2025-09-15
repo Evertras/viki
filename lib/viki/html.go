@@ -13,7 +13,6 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	ignore "github.com/sabhiram/go-gitignore"
 	"github.com/spf13/afero"
 )
 
@@ -47,7 +46,7 @@ func mdToHtml(mdContent []byte) []byte {
 	return htmlContent
 }
 
-func renderSidebar(fs afero.Fs, ignoreChecker *ignore.GitIgnore, includeChecker *ignore.GitIgnore) (string, error) {
+func renderSidebar(fs afero.Fs, pathFilter *pathFilter) (string, error) {
 	type node struct {
 		Name     string
 		URL      string
@@ -74,8 +73,7 @@ func renderSidebar(fs afero.Fs, ignoreChecker *ignore.GitIgnore, includeChecker 
 		}
 
 		if filePath == "." ||
-			ignoreChecker.MatchesPath(filePath) ||
-			!includeChecker.MatchesPath(filePath) {
+			!pathFilter.isPathIncluded(filePath, true) {
 			return nil
 		}
 
