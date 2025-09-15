@@ -7,15 +7,15 @@ import (
 	"github.com/spf13/afero"
 )
 
-func addStaticAssets(fs afero.Fs) error {
+func addStaticAssets(output afero.Fs) error {
 	for path, data := range staticAssetFileMap {
 		dir := filepath.Dir(path)
-		err := fs.MkdirAll(dir, 0755)
+		err := output.MkdirAll(dir, 0755)
 		if err != nil {
 			return fmt.Errorf("failed to write dir %s for file %s: %w", dir, path, err)
 		}
 
-		err = afero.WriteFile(fs, path, data, 0644)
+		err = afero.WriteFile(output, path, data, 0644)
 
 		if err != nil {
 			return fmt.Errorf("failed to write static asset %s: %w", path, err)
@@ -23,7 +23,7 @@ func addStaticAssets(fs afero.Fs) error {
 	}
 
 	// Special case for favicon
-	err := afero.WriteFile(fs, "favicon.ico", static_favicon_favicon_ico, 0644)
+	err := afero.WriteFile(output, "favicon.ico", static_favicon_favicon_ico, 0644)
 
 	if err != nil {
 		return fmt.Errorf("failed to write favicon: %w", err)

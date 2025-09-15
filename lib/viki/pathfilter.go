@@ -22,19 +22,19 @@ func (p *pathFilter) isPathIncluded(path string, isDir bool) bool {
 	return !p.ignoreChecker.MatchesPath(path) && p.includeChecker.MatchesPath(path)
 }
 
-func generatePathFilter(cfg ConverterOptions, fs afero.Fs) (*pathFilter, error) {
+func generatePathFilter(cfg ConverterOptions, input afero.Fs) (*pathFilter, error) {
 	const gitignoreFilename = ".gitignore"
 
 	ignoreLines := make([]string, len(cfg.ExcludePatterns))
 	copy(ignoreLines, cfg.ExcludePatterns)
 
-	exists, err := afero.Exists(fs, gitignoreFilename)
+	exists, err := afero.Exists(input, gitignoreFilename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check for .gitignore: %w", err)
 	}
 
 	if exists {
-		content, err := afero.ReadFile(fs, gitignoreFilename)
+		content, err := afero.ReadFile(input, gitignoreFilename)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read .gitignore: %w", err)
 		}
@@ -50,9 +50,8 @@ func generatePathFilter(cfg ConverterOptions, fs afero.Fs) (*pathFilter, error) 
 			cleanedIgnoreLines = append(cleanedIgnoreLines, line)
 		}
 	}
-	ignoreLines = cleanedIgnoreLines
 
-	ignoreChecker := ignore.CompileIgnoreLines(ignoreLines...)
+	ignoreChecker := ignore.CompileIgnoreLines(cleanedIgnoreLines...)
 
 	// Avoid modifying the original config slices
 	includePatterns := make([]string, len(cfg.IncludePatterns))

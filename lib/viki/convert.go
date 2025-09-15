@@ -2,6 +2,7 @@ package viki
 
 import (
 	"fmt"
+	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
@@ -86,7 +87,14 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 
 		content = convertWikilinks(content, wikiLinks)
 		content = mdToHtml(content)
-		content = renderPage("Viki", string(content), sidebar)
+		content, err = renderPage(renderPageInput{
+			Title:       strings.TrimSuffix(info.Name(), ".md"),
+			BodyHtml:    template.HTML(content),
+			SidebarHtml: template.HTML(sidebar),
+		})
+		if err != nil {
+			return fmt.Errorf("failed to render page for %s: %w", inputFilePath, err)
+		}
 
 		outputFilePath := mdPathToHTMLPath(inputFilePath)
 
@@ -107,7 +115,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		return fmt.Errorf("failed to generate pages: %w", err)
 	}
 
-	cssContent, err := generateThemeCss(ThemeCatppuccin())
+	cssContent, err := generateThemeCss(ThemeCatppuccinFrappe())
 
 	if err != nil {
 		return fmt.Errorf("failed to generate theme css: %w", err)

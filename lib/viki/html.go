@@ -162,12 +162,17 @@ func renderSidebar(fs afero.Fs, pathFilter *pathFilter) (string, error) {
 	return out.String(), nil
 }
 
-func renderPage(title, body, sidebar string) []byte {
+type renderPageInput struct {
+	Title       string
+	BodyHtml    template.HTML
+	SidebarHtml template.HTML
+}
+
+func renderPage(input renderPageInput) ([]byte, error) {
 	var out bytes.Buffer
-	pageTemplate.Execute(&out, map[string]any{
-		"Title":       title,
-		"BodyHtml":    template.HTML(body),
-		"SidebarHtml": template.HTML(sidebar),
-	})
-	return out.Bytes()
+	err := pageTemplate.Execute(&out, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to render page template: %w", err)
+	}
+	return out.Bytes(), nil
 }

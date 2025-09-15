@@ -44,7 +44,7 @@ func generateThemeCss(data ThemeData) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func ThemeCatppuccin() ThemeData {
+func ThemeCatppuccinFrappe() ThemeData {
 	flavor := catppuccin.Frappe
 
 	return ThemeData{
