@@ -67,7 +67,7 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (string, error) {
 
 	nodes["."] = rootNode
 
-	err := walkDir(fs, pathFilter, func(filePath string, info os.FileInfo) error {
+	err := walkFsRoot(fs, pathFilter, func(filePath string, info os.FileInfo) error {
 		if info.IsDir() {
 			nodes[filePath] = &node{
 				Name:     info.Name(),
