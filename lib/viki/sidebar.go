@@ -108,6 +108,17 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 		return "No content", nil
 	}
 
+	// Put directories above individual pages, and sort alphabetically
+	slices.SortFunc(rootNode.Children, func(a, b *node) int {
+		if a.IsDir && !b.IsDir {
+			return -1
+		}
+		if !a.IsDir && b.IsDir {
+			return 1
+		}
+		return strings.Compare(a.Name, b.Name)
+	})
+
 	err = template_base_sidebar_gohtml.Execute(&out, map[string]any{
 		"Nodes": rootNode.Children,
 	})
