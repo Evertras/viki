@@ -2,7 +2,7 @@
 {{- range .Nodes }}
     <li>
         {{- if .IsDir }}
-            <span class="collapsible" onclick="toggleCollapse(this)">&#9654; {{ .Name }}</span>
+            <span data-path="{{ .URL }}" class="collapsible" onclick="toggleCollapse(this)">&#9654; {{ .Name }}</span>
             {{- if .Children }}
                 <div class="collapsible-content" style="display:none;">
                     {{ template "inner" .Children }}
@@ -21,7 +21,7 @@
 {{- range . }}
     <li>
         {{- if .IsDir }}
-            <span class="collapsible" onclick="toggleCollapse(this)">&#9654; {{ .Name }}</span>
+            <span data-path="{{ .URL }}" class="collapsible" onclick="toggleCollapse(this)">&#9654; {{ .Name }}</span>
             {{- if .Children }}
                 <div class="collapsible-content" style="display:none;">
                     {{ template "inner" .Children }}
@@ -47,4 +47,42 @@ function toggleCollapse(el) {
         el.innerHTML = '&#9654; ' + el.textContent.slice(2);
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    var path = window.location.pathname.replace(/^\//, '');
+    var segments = path.split('/').filter(Boolean);
+
+    // Build all possible paths from root to current
+    var paths = [];
+    for (var i = 0; i < segments.length; i++) {
+        paths.push(segments.slice(0, i + 1).join('/'));
+    }
+
+    console.log('Current paths:', paths);
+
+    var sidebar = document.querySelector('.sidebar-list');
+    if (!sidebar) return;
+
+    // Mark active link
+    var links = sidebar.querySelectorAll('a[href]');
+    links.forEach(function(link) {
+        var linkPath = link.getAttribute('href').replace(/^\//, '');
+        if (paths.includes(linkPath)) {
+            link.classList.add('active');
+        }
+    });
+
+    // Expand all collapsibles whose data-path is on the active path
+    var collapsibles = sidebar.querySelectorAll('.collapsible[data-path]');
+    collapsibles.forEach(function(collapsible) {
+        var dataPath = collapsible.getAttribute('data-path').replace(/^\//, '');
+        console.log('Checking collapsible with data-path:', dataPath);
+        if (paths.includes(dataPath)) {
+            var content = collapsible.parentElement.querySelector('.collapsible-content');
+            if (content && content.style.display === 'none') {
+                toggleCollapse(collapsible);
+            }
+        }
+    });
+});
 </script>

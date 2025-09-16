@@ -118,8 +118,3 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 
 	return nil
 }
-
-func mdPathToHTMLPath(mdPath string) string {
-	mdPath = filepath.ToSlash(mdPath)
-	return strings.TrimSuffix(mdPath, ".md") + ".html"
-}
