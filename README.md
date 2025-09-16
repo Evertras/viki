@@ -37,8 +37,8 @@ viki serve
 
 ### Page improvements
 
-- Extract page title from main header if present
 - [Code formatting](https://blog.kowalczyk.info/article/cxn3/advanced-markdown-processing-in-go.html)
+- Read-only checkboxes from `[ ]` and `[x]`
 
 ### Sidebar improvements
 

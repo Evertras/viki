@@ -189,7 +189,7 @@ func TestMDPathToHTMLPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			result := mdPathToHTMLPath(tt.input)
+			result := mdPathToHtmlPath(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

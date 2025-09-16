@@ -79,7 +79,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 			return fmt.Errorf("failed to render page for %s: %w", inputFilePath, err)
 		}
 
-		outputFilePath := mdPathToHTMLPath(inputFilePath)
+		outputFilePath := mdPathToHtmlPath(inputFilePath)
 
 		err = output.MkdirAll(filepath.Dir(outputFilePath), 0755)
 		if err != nil {

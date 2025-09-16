@@ -37,7 +37,7 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 		if info.IsDir() {
 			nodes[filePath] = &node{
 				Name:     info.Name(),
-				URL:      escapedPath(filePath),
+				URL:      filepathToEscapedHttpPath(filePath),
 				IsDir:    true,
 				Children: []*node{},
 			}
@@ -48,7 +48,7 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 			if parent == nil {
 				parent = &node{
 					Name:     parentDir,
-					URL:      escapedPath(parentDir),
+					URL:      filepathToEscapedHttpPath(parentDir),
 					IsDir:    true,
 					Children: []*node{},
 				}
@@ -66,7 +66,7 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 			parent := nodes[parentDir]
 			parent.Children = append(parent.Children, &node{
 				Name:  strings.TrimSuffix(info.Name(), ".md"),
-				URL:   mdPathToHTMLPath(filePath),
+				URL:   mdPathToHtmlPath(filePath),
 				IsDir: false,
 			})
 			nodes[parentDir] = parent
