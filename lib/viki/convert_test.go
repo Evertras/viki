@@ -234,3 +234,23 @@ func TestConverterWorksForHttpServe(t *testing.T) {
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "Expected status OK for about.html")
 }
+
+func TestSidebarPutsDirsFirst(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	afero.WriteFile(fs, "file1.md", []byte("# File 1"), 0644)
+	fs.MkdirAll("dir1", 0755)
+	afero.WriteFile(fs, "dir1/file2.md", []byte("# File 2"), 0644)
+	pathFilter, err := generatePathFilter(ConverterOptions{}, fs)
+	assert.NoError(t, err, "Generating path filter should not error")
+
+	sidebar, err := renderSidebar(fs, pathFilter)
+	assert.NoError(t, err, "Rendering sidebar should not error")
+
+	indexDir1 := strings.Index(string(sidebar), "dir1")
+	indexFile1 := strings.Index(string(sidebar), "file1")
+	indexFile2 := strings.Index(string(sidebar), "file2")
+
+	assert.Less(t, indexDir1, indexFile1, "dir1 should appear before file1.md in the sidebar")
+	assert.Less(t, indexDir1, indexFile2, "dir1 should appear before dir1/file2.md in the sidebar")
+	assert.Less(t, indexFile2, indexFile1, "dir1/file2.md should appear before file1 in the sidebar")
+}
