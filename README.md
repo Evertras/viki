@@ -42,7 +42,6 @@ viki serve
 
 ### Sidebar improvements
 
-- Sort the sidebar so dirs/content aren't intermingled
 - Keep sidebar open to current page
 - Add expand all to sidebar
 - Make sidebar not shift element position when expanding
