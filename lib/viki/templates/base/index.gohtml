@@ -8,7 +8,7 @@
 {{- range . }}
     <li>
         {{- if .IsDir }}
-            <span data-path="{{ .URL }}">{{ .Name }}</span>
+            <span>{{ .Name }}</span>
             {{- if .Children }}
                 {{ template "inner" .Children }}
             {{- end }}
