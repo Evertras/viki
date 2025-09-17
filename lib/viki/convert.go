@@ -107,7 +107,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 	}
 
 	if !exists {
-		indexContent, err := renderIndex(dirTreeRoot)
+		indexContent, err := renderIndexToc(dirTreeRoot)
 		if err != nil {
 			return fmt.Errorf("failed to render index content: %w", err)
 		}

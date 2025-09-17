@@ -3,6 +3,7 @@ module github.com/evertras/viki
 go 1.25.0
 
 require (
+	github.com/alecthomas/chroma/v2 v2.20.0
 	github.com/catppuccin/go v0.3.0
 	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
@@ -14,6 +15,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io"
 
+	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
 )
@@ -16,7 +19,10 @@ func mdToHtml(mdContent []byte) template.HTML {
 	doc := p.Parse(mdContent)
 
 	htmlFlags := html.CommonFlags | html.HrefTargetBlank
-	opts := html.RendererOptions{Flags: htmlFlags}
+	opts := html.RendererOptions{
+		Flags:          htmlFlags,
+		RenderNodeHook: mdToHtmlRenderHook,
+	}
 	renderer := html.NewRenderer(opts)
 
 	htmlContent := markdown.Render(doc, renderer)
@@ -62,6 +68,31 @@ func renderSidebar(rootNode *dirTreeNode) (template.HTML, error) {
 	return renderTocFromTemplate(rootNode, template_base_sidebar_gohtml)
 }
 
-func renderIndex(rootNode *dirTreeNode) (template.HTML, error) {
+func renderIndexToc(rootNode *dirTreeNode) (template.HTML, error) {
 	return renderTocFromTemplate(rootNode, template_base_index_gohtml)
+}
+
+// References:
+//   - https://blog.kowalczyk.info/article/cxn3/advanced-markdown-processing-in-go.html
+//   - https://github.com/alecthomas/chroma/blob/master/quick/quick.go
+func renderCode(w io.Writer, codeBlock *ast.CodeBlock, entering bool) {
+	lang := string(codeBlock.Info)
+	err := quick.Highlight(w, string(codeBlock.Literal), lang, "html", "catppuccin-frappe")
+
+	if err != nil {
+		// Fallback: just render the code block as-is
+		if entering {
+			fmt.Fprintf(w, "<pre><code>")
+			template.HTMLEscape(w, codeBlock.Literal)
+			fmt.Fprintf(w, "</code></pre>")
+		}
+	}
+}
+
+func mdToHtmlRenderHook(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+	if code, ok := node.(*ast.CodeBlock); ok {
+		renderCode(w, code, entering)
+		return ast.GoToNext, true
+	}
+	return ast.GoToNext, false
 }
