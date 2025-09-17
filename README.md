@@ -37,7 +37,6 @@ viki serve
 
 ### Page improvements
 
-- [Code formatting](https://blog.kowalczyk.info/article/cxn3/advanced-markdown-processing-in-go.html)
 - Read-only checkboxes from `[ ]` and `[x]`
 
 ### Sidebar improvements
@@ -52,3 +51,24 @@ Find the latest git commit for the note and add a 'Last updated' note somewhere 
 Look at aferox package to use github as a backing store and serve/publish straight from github repos, or even publish directly to S3.
 
 Hot reload for serve.
+
+## Libraries used
+
+Formatting and syntax highlighting:
+
+- https://github.com/alecthomas/chroma
+- https://github.com/catppuccin/go
+
+Generating HTML from Markdown:
+
+- https://github.com/gomarkdown/markdown
+
+File system help:
+
+- https://github.com/sabhiram/go-gitignore
+- https://github.com/spf13/afero
+
+CLI tooling:
+
+- https://github.com/spf13/cobra
+- https://github.com/spf13/viper
