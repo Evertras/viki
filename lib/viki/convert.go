@@ -112,7 +112,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 			return fmt.Errorf("failed to render index content: %w", err)
 		}
 		indexPage, err := renderPage(renderPageInput{
-			Title:       "Index",
+			Title:       "Viki Home",
 			BodyHtml:    indexContent,
 			SidebarHtml: sidebar,
 		})
