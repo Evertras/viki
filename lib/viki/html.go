@@ -38,3 +38,21 @@ func renderPage(input renderPageInput) ([]byte, error) {
 	}
 	return out.Bytes(), nil
 }
+
+func renderSidebar(rootNode *dirTreeNode, pathFilter pathFilter) (template.HTML, error) {
+	var out bytes.Buffer
+
+	if len(rootNode.Children) == 0 {
+		return "No content", nil
+	}
+
+	err := template_base_sidebar_gohtml.Execute(&out, map[string]any{
+		"Nodes": rootNode.Children,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("failed to render sidebar template: %w", err)
+	}
+
+	return template.HTML(out.String()), nil
+}

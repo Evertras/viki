@@ -243,7 +243,9 @@ func TestSidebarPutsDirsFirst(t *testing.T) {
 	pathFilter, err := generatePathFilter(ConverterOptions{}, fs)
 	assert.NoError(t, err, "Generating path filter should not error")
 
-	sidebar, err := renderSidebar(fs, pathFilter)
+	rootTreeNode, err := buildDirTree(fs, pathFilter)
+	assert.NoError(t, err, "Building directory tree should not error")
+	sidebar, err := renderSidebar(rootTreeNode, pathFilter)
 	assert.NoError(t, err, "Rendering sidebar should not error")
 
 	indexDir1 := strings.Index(string(sidebar), "dir1")

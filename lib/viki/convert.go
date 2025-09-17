@@ -47,13 +47,16 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 	}
 
 	pathFilter, err := generatePathFilter(c.config, input)
-
 	if err != nil {
 		return fmt.Errorf("failed to generate path filter: %w", err)
 	}
 
-	sidebar, err := renderSidebar(input, pathFilter)
+	dirTreeRoot, err := buildDirTree(input, pathFilter)
+	if err != nil {
+		return fmt.Errorf("failed to build root directory tree: %w", err)
+	}
 
+	sidebar, err := renderSidebar(dirTreeRoot, pathFilter)
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
 	}
