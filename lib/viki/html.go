@@ -39,15 +39,16 @@ func renderPage(input renderPageInput) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-func renderSidebar(rootNode *dirTreeNode) (template.HTML, error) {
+func renderTocFromTemplate(rootNode *dirTreeNode, tpl *template.Template) (template.HTML, error) {
 	var out bytes.Buffer
 
-	if len(rootNode.Children) == 0 {
-		return "No content", nil
+	var nodes []*dirTreeNode
+	if rootNode != nil {
+		nodes = rootNode.Children
 	}
 
-	err := template_base_sidebar_gohtml.Execute(&out, map[string]any{
-		"Nodes": rootNode.Children,
+	err := tpl.Execute(&out, map[string]any{
+		"Nodes": nodes,
 	})
 
 	if err != nil {
@@ -57,19 +58,10 @@ func renderSidebar(rootNode *dirTreeNode) (template.HTML, error) {
 	return template.HTML(out.String()), nil
 }
 
+func renderSidebar(rootNode *dirTreeNode) (template.HTML, error) {
+	return renderTocFromTemplate(rootNode, template_base_sidebar_gohtml)
+}
+
 func renderIndex(rootNode *dirTreeNode) (template.HTML, error) {
-	var out bytes.Buffer
-
-	if len(rootNode.Children) == 0 {
-		return "No content", nil
-	}
-
-	err := template_base_index_gohtml.Execute(&out, map[string]any{
-		"Nodes": rootNode.Children,
-	})
-
-	if err != nil {
-		return "", fmt.Errorf("failed to render index template: %w", err)
-	}
-	return template.HTML(out.String()), nil
+	return renderTocFromTemplate(rootNode, template_base_index_gohtml)
 }
