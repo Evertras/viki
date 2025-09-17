@@ -20,7 +20,4 @@ jobs:
           go-version: 'stable'
 
       - name: Run tests
-        run: |
-          # Can't seem to get the executable flag to stick from windows, remove once it's fixed
-          chmod +x ./lib/viki/gen-assets.sh
-          make test
+        run: go test ./...
