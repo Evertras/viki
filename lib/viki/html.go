@@ -6,7 +6,10 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/alecthomas/chroma/v2/quick"
+	"github.com/alecthomas/chroma/v2"
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
+	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
@@ -75,23 +78,50 @@ func renderIndexToc(rootNode *dirTreeNode) (template.HTML, error) {
 // References:
 //   - https://blog.kowalczyk.info/article/cxn3/advanced-markdown-processing-in-go.html
 //   - https://github.com/alecthomas/chroma/blob/master/quick/quick.go
-func renderCode(w io.Writer, codeBlock *ast.CodeBlock, entering bool) {
-	lang := string(codeBlock.Info)
-	err := quick.Highlight(w, string(codeBlock.Literal), lang, "html", "catppuccin-frappe")
+func renderCode(w io.Writer, codeBlock *ast.CodeBlock) error {
+	const style = "catppuccin-frappe"
 
-	if err != nil {
-		// Fallback: just render the code block as-is
-		if entering {
-			fmt.Fprintf(w, "<pre><code>")
-			template.HTMLEscape(w, codeBlock.Literal)
-			fmt.Fprintf(w, "</code></pre>")
-		}
+	lang := string(codeBlock.Info)
+	source := string(codeBlock.Literal)
+
+	// Determine lexer.
+	l := lexers.Get(lang)
+	if l == nil {
+		l = lexers.Analyse(source)
 	}
+	if l == nil {
+		l = lexers.Fallback
+	}
+	l = chroma.Coalesce(l)
+
+	// Determine formatter.
+	f := chromahtml.New(chromahtml.ClassPrefix("chroma-"), chromahtml.TabWidth(2), chromahtml.WithLineNumbers(true))
+
+	// Determine style.
+	s := styles.Get(style)
+	if s == nil {
+		s = styles.Fallback
+	}
+
+	it, err := l.Tokenise(nil, source)
+	if err != nil {
+		return fmt.Errorf("failed to tokenize source: %w", err)
+	}
+
+	return f.Format(w, s, it)
 }
 
 func mdToHtmlRenderHook(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
 	if code, ok := node.(*ast.CodeBlock); ok {
-		renderCode(w, code, entering)
+		var out bytes.Buffer
+		err := renderCode(&out, code)
+		if err != nil {
+			return ast.GoToNext, false
+		}
+		_, err = out.WriteTo(w)
+		if err != nil {
+			return ast.GoToNext, false
+		}
 		return ast.GoToNext, true
 	}
 	return ast.GoToNext, false
