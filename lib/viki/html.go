@@ -56,3 +56,20 @@ func renderSidebar(rootNode *dirTreeNode, pathFilter pathFilter) (template.HTML,
 
 	return template.HTML(out.String()), nil
 }
+
+func renderIndex(rootNode *dirTreeNode) (template.HTML, error) {
+	var out bytes.Buffer
+
+	if len(rootNode.Children) == 0 {
+		return "No content", nil
+	}
+
+	err := template_base_index_gohtml.Execute(&out, map[string]any{
+		"Nodes": rootNode.Children,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("failed to render index template: %w", err)
+	}
+	return template.HTML(out.String()), nil
+}
