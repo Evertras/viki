@@ -1,19 +1,6 @@
 <h1>Viki Home</h1>
 
-<ul class="index-toc">
-{{- range .Nodes }}
-    <li>
-        {{- if .IsDir }}
-            <span data-path="{{ .URL }}">{{ .Name }}</span>
-            {{- if .Children }}
-                {{ template "inner" .Children }}
-            {{- end }}
-        {{- else }}
-            <a href="/{{ .URL }}">{{ .Name }}</a>
-        {{- end }}
-    </li>
-{{- end }}
-</ul>
+{{ template "inner" .Nodes }}
 
 {{/* Define the recursive template */}}
 {{ define "inner" }}
