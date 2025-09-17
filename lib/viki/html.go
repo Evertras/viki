@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"strings"
 
 	"github.com/alecthomas/chroma/v2"
 	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
@@ -20,6 +21,23 @@ func mdToHtml(mdContent []byte) template.HTML {
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.Footnotes
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse(mdContent)
+
+	// Make modifications to the AST here
+	ast.WalkFunc(doc, func(node ast.Node, entering bool) ast.WalkStatus {
+		switch node := node.(type) {
+		case *ast.Link:
+			if !entering {
+				break
+			}
+			uri := string(node.Destination)
+			if strings.HasPrefix(uri, "https://") || strings.HasPrefix(uri, "http://") {
+				// Adding directly to node.Classes doesn't work for some reason, figure out later if we need to
+				node.AdditionalAttributes = append(node.AdditionalAttributes, `class="external-link"`)
+			}
+		}
+
+		return ast.GoToNext
+	})
 
 	htmlFlags := html.CommonFlags | html.HrefTargetBlank
 	opts := html.RendererOptions{
@@ -112,9 +130,10 @@ func renderCode(w io.Writer, codeBlock *ast.CodeBlock) error {
 }
 
 func mdToHtmlRenderHook(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
-	if code, ok := node.(*ast.CodeBlock); ok {
+	switch node := node.(type) {
+	case *ast.CodeBlock:
 		var out bytes.Buffer
-		err := renderCode(&out, code)
+		err := renderCode(&out, node)
 		if err != nil {
 			return ast.GoToNext, false
 		}
@@ -123,6 +142,8 @@ func mdToHtmlRenderHook(w io.Writer, node ast.Node, entering bool) (ast.WalkStat
 			return ast.GoToNext, false
 		}
 		return ast.GoToNext, true
+
+	default:
+		return ast.GoToNext, false
 	}
-	return ast.GoToNext, false
 }
