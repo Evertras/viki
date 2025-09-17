@@ -29,7 +29,6 @@ viki serve
 
 ### General improvements
 
-- Add external link icon only to external links via CSS class
 - Tag pages
 - TOC page
     - Tag badges

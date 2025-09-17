@@ -28,12 +28,14 @@ a {
 	position: relative;
 	color: var(--color-link);
 	text-decoration: none;
-	padding-right: var(--external-link-icon-size);
 }
 a:hover {
 	color: var(--color-link-hover);
 }
-a::after {
+a.external-link {
+	padding-right: var(--external-link-icon-size);
+}
+a.external-link::after {
 	content: "";
 	position: absolute;
 	left: auto;
