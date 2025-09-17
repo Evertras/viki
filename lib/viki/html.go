@@ -39,7 +39,7 @@ func renderPage(input renderPageInput) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-func renderSidebar(rootNode *dirTreeNode, pathFilter pathFilter) (template.HTML, error) {
+func renderSidebar(rootNode *dirTreeNode) (template.HTML, error) {
 	var out bytes.Buffer
 
 	if len(rootNode.Children) == 0 {

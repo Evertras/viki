@@ -56,7 +56,7 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 		return fmt.Errorf("failed to build root directory tree: %w", err)
 	}
 
-	sidebar, err := renderSidebar(dirTreeRoot, pathFilter)
+	sidebar, err := renderSidebar(dirTreeRoot)
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
 	}
