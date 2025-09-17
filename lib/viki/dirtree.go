@@ -1,9 +1,7 @@
 package viki
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
 	"os"
 	"path/filepath"
 	"slices"
@@ -12,45 +10,43 @@ import (
 	"github.com/spf13/afero"
 )
 
-func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
-	type node struct {
-		Name     string
-		URL      string
-		IsDir    bool
-		Children []*node
-	}
+type dirTreeNode struct {
+	Name     string
+	URL      string
+	IsDir    bool
+	Children []*dirTreeNode
+}
 
-	var out bytes.Buffer
+func buildDirTree(fs afero.Fs, pathFilter pathFilter) (*dirTreeNode, error) {
+	nodes := make(map[string]*dirTreeNode)
 
-	nodes := make(map[string]*node)
-
-	rootNode := &node{
+	rootNode := &dirTreeNode{
 		Name:     "Root",
 		URL:      "/",
 		IsDir:    true,
-		Children: []*node{},
+		Children: []*dirTreeNode{},
 	}
 
 	nodes["."] = rootNode
 
 	err := walkFsRoot(fs, pathFilter, func(filePath string, info os.FileInfo) error {
 		if info.IsDir() {
-			nodes[filePath] = &node{
+			nodes[filePath] = &dirTreeNode{
 				Name:     info.Name(),
 				URL:      filepathToEscapedHttpPath(filePath),
 				IsDir:    true,
-				Children: []*node{},
+				Children: []*dirTreeNode{},
 			}
 
 			parentDir := filepath.Dir(filePath)
 
 			parent := nodes[parentDir]
 			if parent == nil {
-				parent = &node{
+				parent = &dirTreeNode{
 					Name:     parentDir,
 					URL:      filepathToEscapedHttpPath(parentDir),
 					IsDir:    true,
-					Children: []*node{},
+					Children: []*dirTreeNode{},
 				}
 			}
 			parent.Children = append(parent.Children, nodes[filePath])
@@ -64,7 +60,7 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 			parentDir := filepath.Dir(filePath)
 
 			parent := nodes[parentDir]
-			parent.Children = append(parent.Children, &node{
+			parent.Children = append(parent.Children, &dirTreeNode{
 				Name:  strings.TrimSuffix(info.Name(), ".md"),
 				URL:   mdPathToHtmlPath(filePath),
 				IsDir: false,
@@ -76,20 +72,20 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("failed to walk filesystem for sidebar: %w", err)
+		return nil, fmt.Errorf("failed to walk filesystem for sidebar: %w", err)
 	}
 
 	// Prune any empty directories
-	var hasAnyChildren func(n *node) bool
-	hasAnyChildren = func(n *node) bool {
+	var hasAnyChildren func(n *dirTreeNode) bool
+	hasAnyChildren = func(n *dirTreeNode) bool {
 		if !n.IsDir {
 			return true
 		}
 		return slices.ContainsFunc(n.Children, hasAnyChildren)
 	}
 
-	var pruneChildren func(n *node)
-	pruneChildren = func(n *node) {
+	var pruneChildren func(n *dirTreeNode)
+	pruneChildren = func(n *dirTreeNode) {
 		if !n.IsDir {
 			return
 		}
@@ -104,14 +100,10 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 
 	pruneChildren(rootNode)
 
-	if len(rootNode.Children) == 0 {
-		return "No content", nil
-	}
-
 	// Put directories above individual pages, and sort alphabetically
-	var sortChildren func(n *node)
-	sortChildren = func(n *node) {
-		slices.SortFunc(n.Children, func(a, b *node) int {
+	var sortChildren func(n *dirTreeNode)
+	sortChildren = func(n *dirTreeNode) {
+		slices.SortFunc(n.Children, func(a, b *dirTreeNode) int {
 			if a.IsDir && !b.IsDir {
 				return -1
 			}
@@ -128,13 +120,5 @@ func renderSidebar(fs afero.Fs, pathFilter pathFilter) (template.HTML, error) {
 
 	sortChildren(rootNode)
 
-	err = template_base_sidebar_gohtml.Execute(&out, map[string]any{
-		"Nodes": rootNode.Children,
-	})
-
-	if err != nil {
-		return "", fmt.Errorf("failed to render sidebar template: %w", err)
-	}
-
-	return template.HTML(out.String()), nil
+	return rootNode, nil
 }

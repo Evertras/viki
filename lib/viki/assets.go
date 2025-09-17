@@ -29,6 +29,10 @@ var staticAssetFileMap = map[string][]byte{
 }
 
 var (
+	//go:embed templates/base/index.gohtml
+	raw_base_index_gohtml      string
+	template_base_index_gohtml = template.Must(template.New("index").Parse(raw_base_index_gohtml))
+
 	//go:embed templates/base/page.gohtml
 	raw_base_page_gohtml      string
 	template_base_page_gohtml = template.Must(template.New("page").Parse(raw_base_page_gohtml))

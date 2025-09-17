@@ -38,3 +38,30 @@ func renderPage(input renderPageInput) ([]byte, error) {
 	}
 	return out.Bytes(), nil
 }
+
+func renderTocFromTemplate(rootNode *dirTreeNode, tpl *template.Template) (template.HTML, error) {
+	var out bytes.Buffer
+
+	var nodes []*dirTreeNode
+	if rootNode != nil {
+		nodes = rootNode.Children
+	}
+
+	err := tpl.Execute(&out, map[string]any{
+		"Nodes": nodes,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("failed to render template: %w", err)
+	}
+
+	return template.HTML(out.String()), nil
+}
+
+func renderSidebar(rootNode *dirTreeNode) (template.HTML, error) {
+	return renderTocFromTemplate(rootNode, template_base_sidebar_gohtml)
+}
+
+func renderIndex(rootNode *dirTreeNode) (template.HTML, error) {
+	return renderTocFromTemplate(rootNode, template_base_index_gohtml)
+}

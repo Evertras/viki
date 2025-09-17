@@ -47,13 +47,16 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 	}
 
 	pathFilter, err := generatePathFilter(c.config, input)
-
 	if err != nil {
 		return fmt.Errorf("failed to generate path filter: %w", err)
 	}
 
-	sidebar, err := renderSidebar(input, pathFilter)
+	dirTreeRoot, err := buildDirTree(input, pathFilter)
+	if err != nil {
+		return fmt.Errorf("failed to build root directory tree: %w", err)
+	}
 
+	sidebar, err := renderSidebar(dirTreeRoot)
 	if err != nil {
 		return fmt.Errorf("failed to render sidebar: %w", err)
 	}
@@ -93,9 +96,33 @@ func (c *Converter) Convert(input afero.Fs, output afero.Fs) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return fmt.Errorf("failed to generate pages: %w", err)
+	}
+
+	// Add a root index.html file if it doesn't already exist
+	exists, err := afero.Exists(output, "index.html")
+	if err != nil {
+		return fmt.Errorf("failed to check for existing index.html: %w", err)
+	}
+
+	if !exists {
+		indexContent, err := renderIndex(dirTreeRoot)
+		if err != nil {
+			return fmt.Errorf("failed to render index content: %w", err)
+		}
+		indexPage, err := renderPage(renderPageInput{
+			Title:       "Viki Home",
+			BodyHtml:    indexContent,
+			SidebarHtml: sidebar,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to render index page: %w", err)
+		}
+		err = afero.WriteFile(output, "index.html", indexPage, 0644)
+		if err != nil {
+			return fmt.Errorf("failed to write index.html: %w", err)
+		}
 	}
 
 	cssContent, err := generateThemeCss(ThemeCatppuccinFrappe())

@@ -1,0 +1,21 @@
+<h1>Viki Home</h1>
+
+{{ template "inner" .Nodes }}
+
+{{/* Define the recursive template */}}
+{{ define "inner" }}
+<ul>
+{{- range . }}
+    <li>
+        {{- if .IsDir }}
+            <span>{{ .Name }}</span>
+            {{- if .Children }}
+                {{ template "inner" .Children }}
+            {{- end }}
+        {{- else }}
+            <a href="/{{ .URL }}">{{ .Name }}</a>
+        {{- end }}
+    </li>
+{{- end }}
+</ul>
+{{ end }}
