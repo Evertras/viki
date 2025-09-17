@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/evertras/viki/lib/viki"
 	"github.com/spf13/afero"
@@ -13,8 +14,16 @@ var generateCmd = &cobra.Command{
 	Short: "Generate a static website from an Obsidian vault.",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		src := args[0]
-		dst := args[1]
+		src := filepath.Clean(args[0])
+		dst := filepath.Clean(args[1])
+		src, err := filepath.Abs(src)
+		if err != nil {
+			log.Fatalln("Error determining absolute path of source:", err)
+		}
+		dst, err = filepath.Abs(dst)
+		if err != nil {
+			log.Fatalln("Error determining absolute path of destination:", err)
+		}
 
 		log.Printf("Generating website from %s to %s", src, dst)
 
@@ -23,7 +32,7 @@ var generateCmd = &cobra.Command{
 
 		converter := viki.NewConverter(generateVikiConfig())
 
-		err := converter.Convert(inputFs, outputFs)
+		err = converter.Convert(inputFs, outputFs)
 
 		if err != nil {
 			log.Fatalln("Error during conversion:", err)
