@@ -42,7 +42,7 @@ func ThemeCatppuccinFrappe() ThemeData {
 		HeaderColor:           flavor.Green().Hex,
 		SidebarBgColor:        flavor.Mantle().Hex,
 		SidebarFgColor:        flavor.Text().Hex,
-		CodeBgColor:           flavor.Base().Hex,
+		CodeBgColor:           flavor.Crust().Hex,
 		CodeFgColor:           flavor.Text().Hex,
 		BlockquoteBgColor:     flavor.Base().Hex,
 		BlockquoteBorderColor: flavor.Peach().Hex,

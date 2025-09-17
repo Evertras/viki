@@ -60,8 +60,11 @@ pre, code {
 	padding: 0.2em 0.4em;
 }
 pre {
-	padding: 1em;
 	overflow-x: auto;
+}
+pre code {
+	padding: 1em;
+	display: block;
 }
 
 strong {
