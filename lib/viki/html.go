@@ -52,7 +52,7 @@ func renderTocFromTemplate(rootNode *dirTreeNode, tpl *template.Template) (templ
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("failed to render sidebar template: %w", err)
+		return "", fmt.Errorf("failed to render template: %w", err)
 	}
 
 	return template.HTML(out.String()), nil
